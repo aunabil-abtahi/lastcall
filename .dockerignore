@@ -1,0 +1,11 @@
+.git
+.gitignore
+.env
+.vscode
+.idea
+*.log
+*.tmp
+tests/*cookie*.txt
+screenshot*.png
+verify_*.png
+mobile_*.png

@@ -1,0 +1,54 @@
+name: CI & Deployment Verification
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  test:
+    name: Lint & Security Test Suite
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mariadb:10.4
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: lastcall
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=5
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: pdo, pdo_mysql, curl, mbstring
+          coverage: none
+
+      - name: Setup Environment
+        run: |
+          cp .env.example .env
+          sed -i 's/DB_HOST=127.0.0.1/DB_HOST=127.0.0.1/' .env
+          sed -i 's/DB_PASS=/DB_PASS=root/' .env
+
+      - name: Initialize Database
+        run: |
+          mysql -h 127.0.0.1 -u root -proot lastcall < database/schema.sql
+          mysql -h 127.0.0.1 -u root -proot lastcall < database/seed.sql
+          mysql -h 127.0.0.1 -u root -proot lastcall < database/views.sql
+
+      - name: Lint PHP Files
+        run: |
+          find . -name "*.php" ! -path "./vendor/*" -print0 | xargs -0 -n 1 -P 4 php -l
+
+      - name: Run Test Suite
+        run: |
+          php tests/test_phase6_features.php
+          php tests/test_subpages_render.php

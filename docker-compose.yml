@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: lastcall_web
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    environment:
+      DB_HOST: db
+      DB_NAME: lastcall
+      DB_USER: lastcall_user
+      DB_PASS: lastcall_password
+      APP_URL: http://localhost:8080
+      SSLCOMMERZ_MODE: sandbox
+      SSLCOMMERZ_STORE_ID: ${SSLCOMMERZ_STORE_ID:-replace_with_your_sandbox_store_id}
+      SSLCOMMERZ_STORE_PASSWORD: ${SSLCOMMERZ_STORE_PASSWORD:-replace_with_your_sandbox_store_password}
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: mariadb:10.4
+    container_name: lastcall_db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: lastcall
+      MYSQL_USER: lastcall_user
+      MYSQL_PASSWORD: lastcall_password
+      MYSQL_ROOT_PASSWORD: root_password_123
+    ports:
+      - "3307:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ./database/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql:ro
+      - ./database/views.sql:/docker-entrypoint-initdb.d/03-views.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot_password_123"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  db_data:
