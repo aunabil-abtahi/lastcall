@@ -11,28 +11,44 @@ if (!function_exists("lastCallEnv")) {
         }
 
         $envPath = __DIR__ . "/../.env";
-        $environment = is_file($envPath)
+        $fileEnv = is_file($envPath)
             ? (parse_ini_file($envPath, false, INI_SCANNER_RAW) ?: [])
             : [];
 
+        $systemEnv = [];
+        $cloudKeys = [
+            "DB_HOST", "DB_PORT", "DB_NAME", "DB_USER", "DB_PASS",
+            "APP_URL", "SSLCOMMERZ_MODE", "SSLCOMMERZ_STORE_ID",
+            "SSLCOMMERZ_STORE_PASSWORD", "SSLCOMMERZ_IPN_URL"
+        ];
+        foreach ($cloudKeys as $key) {
+            $val = getenv($key);
+            if ($val !== false) {
+                $systemEnv[$key] = $val;
+            } elseif (isset($_ENV[$key])) {
+                $systemEnv[$key] = $_ENV[$key];
+            }
+        }
+
+        $environment = array_merge($fileEnv, $systemEnv);
         return $environment;
     }
 }
 
 $env = lastCallEnv();
 $host = $env["DB_HOST"] ?? "localhost";
+$port = $env["DB_PORT"] ?? "3306";
 $dbname = $env["DB_NAME"] ?? "lastcall";
 $username = $env["DB_USER"] ?? "root";
 $password = $env["DB_PASS"] ?? "";
 
 try {
-    $pdo = new PDO(
-        "mysql:host=$host;dbname=$dbname;charset=utf8mb4",
-        $username,
-        $password
-    );
+    $dsn = "mysql:host=$host;port=$port;dbname=$dbname;charset=utf8mb4";
+    $pdo = new PDO($dsn, $username, $password, [
+        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+    ]);
 
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     $pdo->exec("SET time_zone = '+06:00';");
 } catch (PDOException $e) {
     error_log("Database connection failed: " . $e->getMessage());
