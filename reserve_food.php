@@ -75,28 +75,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && $listing) {
 
                 $createReservation = $pdo->prepare("
                     INSERT INTO reservations (
-                        buyer_id, expires_at, status, total_reserved_price
-                    ) VALUES (
-                        ?, DATE_ADD(NOW(), INTERVAL 5 MINUTE), 'active', ?
-                    )
+                        buyer_id, listing_id, ticket_id, quantity,
+                        reserved_price, reservation_status, expires_at
+                    ) VALUES (?, ?, NULL, ?, ?, 'active', DATE_ADD(NOW(), INTERVAL 5 MINUTE))
                 ");
-                $createReservation->execute([$buyerId, $totalPrice]);
-                $reservationId = (int) $pdo->lastInsertId();
-
-                $createItem = $pdo->prepare("
-                    INSERT INTO reservation_items (
-                        reservation_id, listing_id, item_title,
-                        quantity, unit_price, subtotal
-                    ) VALUES (?, ?, ?, ?, ?, ?)
-                ");
-                $createItem->execute([
-                    $reservationId,
+                $createReservation->execute([
+                    $buyerId,
                     $listingId,
-                    $current["title"],
                     $quantity,
-                    $unitPrice,
                     $totalPrice
                 ]);
+                $reservationId = (int) $pdo->lastInsertId();
 
                 $updateAvailable = $pdo->prepare("
                     UPDATE food_listing_details
