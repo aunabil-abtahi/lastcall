@@ -18,8 +18,9 @@ if (!function_exists("lastCallEnv")) {
         $systemEnv = [];
         $cloudKeys = [
             "DB_HOST", "DB_PORT", "DB_NAME", "DB_USER", "DB_PASS",
+            "MYSQLHOST", "MYSQLPORT", "MYSQLDATABASE", "MYSQLUSER", "MYSQLPASSWORD", "MYSQL_URL",
             "APP_URL", "SSLCOMMERZ_MODE", "SSLCOMMERZ_STORE_ID",
-            "SSLCOMMERZ_STORE_PASSWORD", "SSLCOMMERZ_IPN_URL"
+            "SSLCOMMERZ_STORE_PASSWORD", "SSLCOMMERZ_IPN_URL", "PORT"
         ];
         foreach ($cloudKeys as $key) {
             $val = getenv($key);
@@ -36,11 +37,23 @@ if (!function_exists("lastCallEnv")) {
 }
 
 $env = lastCallEnv();
-$host = $env["DB_HOST"] ?? "localhost";
-$port = $env["DB_PORT"] ?? "3306";
-$dbname = $env["DB_NAME"] ?? "lastcall";
-$username = $env["DB_USER"] ?? "root";
-$password = $env["DB_PASS"] ?? "";
+
+// Support Railway MYSQL_URL connection string if present
+$dbUrl = $env["MYSQL_URL"] ?? null;
+if (!empty($dbUrl)) {
+    $parsedUrl = parse_url($dbUrl);
+    $host = $parsedUrl["host"] ?? "localhost";
+    $port = $parsedUrl["port"] ?? "3306";
+    $username = $parsedUrl["user"] ?? "root";
+    $password = $parsedUrl["pass"] ?? "";
+    $dbname = ltrim($parsedUrl["path"] ?? "/lastcall", "/");
+} else {
+    $host = $env["DB_HOST"] ?? $env["MYSQLHOST"] ?? "localhost";
+    $port = $env["DB_PORT"] ?? $env["MYSQLPORT"] ?? "3306";
+    $dbname = $env["DB_NAME"] ?? $env["MYSQLDATABASE"] ?? "lastcall";
+    $username = $env["DB_USER"] ?? $env["MYSQLUSER"] ?? "root";
+    $password = $env["DB_PASS"] ?? $env["MYSQLPASSWORD"] ?? "";
+}
 
 try {
     $dsn = "mysql:host=$host;port=$port;dbname=$dbname;charset=utf8mb4";

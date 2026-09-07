@@ -2,10 +2,8 @@
 
 > **A sustainable commerce platform designed to eliminate urban food waste and combat event ticket fraud through time-decay pricing, atomic inventory holds, and verified chain-of-custody transfers.**
 
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-Render-46e3b7?style=for-the-badge&logo=render&logoColor=white)](https://lastcall-kv1b.onrender.com/)
+[![Status](https://img.shields.io/badge/Deployment-Production%20Ready-00c853?style=for-the-badge&logo=railway&logoColor=white)](https://railway.app/)
 [![CI Status](https://img.shields.io/badge/CI%20Build-Passing-10b981?style=for-the-badge&logo=githubactions&logoColor=white)](https://github.com/aunabil-abtahi/lastcall/actions)
-
-**Live Production URL:** [https://lastcall-kv1b.onrender.com/](https://lastcall-kv1b.onrender.com/)
 
 ---
 
