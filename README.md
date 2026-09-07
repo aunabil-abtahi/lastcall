@@ -64,15 +64,18 @@ LastCall implements multi-layered enterprise application security:
 
 ## 👥 Demo Accounts Matrix
 
-The system includes pre-seeded accounts configured for immediate testing and academic presentations:
+The system includes pre-seeded accounts configured for exploring the platform and evaluating core features:
 
-| Role | Email Address | Password | Name / Business Name | Primary Capabilities |
-| :--- | :--- | :--- | :--- | :--- |
-| 🛡 **Admin** | `admin@lastcall.test` | `admin12345` | LastCall Admin | Seller approvals, ticket vetting, user bans, dispute resolution, demo seeder |
-| 🍱 **Food Seller** | `food@lastcall.test` | `password` | Dhaka Food House | Create surplus meal listings, set time-decay discount tiers, manage sales |
-| 🎟 **Organizer** | `events@lastcall.test` | `password` | Dhaka Live Events | Publish official concerts/events, issue verified tickets (instant approval) |
-| 🎫 **Ticket Seller** | `ticket@lastcall.test` | `password` | Karim Ticket Resale | Resell personal tickets (requires admin verification before listing goes live) |
-| 🛒 **Buyer** | `buyer@lastcall.test` | `password` | Rahim Ahmed | Browse marketplace, reserve items (5-min hold), checkout, write reviews |
+| Role | Email Address | Name / Business Name | Primary Capabilities |
+| :--- | :--- | :--- | :--- |
+| 🛡 **Admin** | `admin@lastcall.test` | LastCall Admin | Seller approvals, ticket vetting, user bans, dispute resolution, demo seeder |
+| 🍱 **Food Seller** | `food@lastcall.test` | Dhaka Food House | Create surplus meal listings, set time-decay discount tiers, manage sales |
+| 🎟 **Organizer** | `events@lastcall.test` | Dhaka Live Events | Publish official concerts/events, issue verified tickets (instant approval) |
+| 🎫 **Ticket Seller** | `ticket@lastcall.test` | Karim Ticket Resale | Resell personal tickets (requires admin verification before listing goes live) |
+| 🛒 **Buyer** | `buyer@lastcall.test` | Rahim Ahmed | Browse marketplace, reserve items (5-min hold), checkout, write reviews |
+
+> [!NOTE]
+> Demo accounts are pre-seeded with a default password defined in `database/seed.sql`. Always update and secure credentials before deploying to a production environment.
 
 ---
 
@@ -85,10 +88,13 @@ The system includes pre-seeded accounts configured for immediate testing and aca
 
 ### 2. Setup Project Files
 
-Clone or copy the repository into your XAMPP web root:
+Clone or copy the repository into your web server document root:
 
 ```bash
-# Path: d:\XAMPP\htdocs\lastcall (or C:\xampp\htdocs\lastcall)
+# Example paths:
+# Windows (XAMPP): C:/xampp/htdocs/lastcall
+# Linux (Apache):  /var/www/html/lastcall
+git clone https://github.com/aunabil-abtahi/lastcall.git
 ```
 
 ### 3. Database Initialization
@@ -137,9 +143,9 @@ Navigate to **`http://localhost/lastcall/`** in any modern web browser.
 
 ---
 
-## 🎓 Faculty Presentation Guide (5-Minute Walkthrough)
+## 🚀 Interactive Demo & Feature Walkthrough
 
-LastCall includes a built-in **Demo Floating Toolbar** (visible at the bottom of the screen) specifically designed for live academic evaluations and presentations:
+LastCall includes a built-in **Demo Floating Toolbar** (visible at the bottom of the screen) specifically designed for live product tours and evaluating core features:
 
 ```text
 [ Quick Switch: (Buyer) (Food Seller) (Organizer) (Ticket Seller) (Admin) ] [ ⚡ Seed Demo Data ] [ 🗑 Clear Demo ]
@@ -239,17 +245,17 @@ LastCall features integration with Bangladesh's premier payment gateway:
 The project includes an automated PHP CLI test suite covering core functionality:
 
 ```bash
-# Execute Phase 6 security & regression test suite
-php scratch/test_phase6_features.php
+# Execute Phase 6 security, CSRF defense & input validation test suite
+php tests/test_phase6_features.php
 
-# Execute Phase 5 features test suite
-php scratch/test_phase5_features.php
+# Execute Phase 5 admin platform management test suite
+php tests/test_phase5_features.php
 
-# Execute Phase 4 features test suite
-php scratch/test_phase4_features.php
+# Execute buyer features & digital ticket wallet test suite
+php tests/test_buyer_features.php
 
-# Verify clean database schema import
-php scratch/test_schema_import.php
+# Execute subpage rendering and template linting suite
+php tests/test_subpages_render.php
 ```
 
 ### Verified Test Matrix
@@ -262,8 +268,8 @@ php scratch/test_schema_import.php
 
 ---
 
-## 📄 License & Academic Attribution
+## 📄 License & Project Attribution
 
-Developed as a capstone software engineering project demonstrating modern web standards, sustainable e-commerce design, and robust platform security.
+Developed as a full-featured software engineering project demonstrating modern web standards, sustainable e-commerce design, and robust platform security.
 
 *Built with ❤️ for a cleaner, greener, and fraud-free digital marketplace.*
