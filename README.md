@@ -2,10 +2,7 @@
 
 > **A sustainable commerce platform designed to eliminate urban food waste and combat event ticket fraud through time-decay pricing, atomic inventory holds, and verified chain-of-custody transfers.**
 
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-Railway-0B0D0E?style=for-the-badge&logo=railway&logoColor=white)](https://web-production-e47b9.up.railway.app)
 [![CI Status](https://img.shields.io/badge/CI%20Build-Passing-10b981?style=for-the-badge&logo=githubactions&logoColor=white)](https://github.com/aunabil-abtahi/lastcall/actions)
-
-**Live Production URL:** [https://web-production-e47b9.up.railway.app](https://web-production-e47b9.up.railway.app)
 
 ---
 
@@ -145,6 +142,27 @@ git clone https://github.com/aunabil-abtahi/lastcall.git
 ### 5. Launch the Platform
 
 Navigate to **`http://localhost/lastcall/`** in any modern web browser.
+
+### 6. Public Exposure via ngrok (Docker Setup)
+
+If you are running the platform via Docker and want a hassle-free public URL (for testing IPNs, webhooks, or sharing with others), an `ngrok` service is included in the `docker-compose.yml`.
+
+1. Go to [ngrok.com](https://ngrok.com) and sign up for a free account.
+2. Get your **Authtoken** from the ngrok dashboard.
+3. Add the authtoken to your `.env` file:
+   ```env
+   NGROK_AUTHTOKEN=your_ngrok_auth_token_here
+   ```
+4. Start the application using Docker Compose:
+   ```bash
+   docker-compose up -d
+   ```
+5. Fetch your public ngrok URL by accessing the ngrok local API or checking the container logs:
+   ```bash
+   curl -s http://localhost:4040/api/tunnels | grep -o "https://[a-zA-Z0-9.-]*\.ngrok-free\.app"
+   # OR
+   docker logs lastcall_ngrok
+   ```
 
 ---
 
