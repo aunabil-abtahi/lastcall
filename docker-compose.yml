@@ -44,5 +44,17 @@ services:
       timeout: 3s
       retries: 10
 
+  ngrok:
+    image: ngrok/ngrok:latest
+    container_name: lastcall_ngrok
+    restart: unless-stopped
+    command:
+      - "http"
+      - "app:80"
+    environment:
+      NGROK_AUTHTOKEN: ${NGROK_AUTHTOKEN:-}
+    depends_on:
+      - app
+
 volumes:
   db_data:
