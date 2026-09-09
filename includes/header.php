@@ -56,13 +56,13 @@ $_cssVersion = file_exists(__DIR__ . "/../assets/css/style.css") ? filemtime(__D
         <nav class="nav-primary">
             <a href="<?= $_base ?>index.php" class="nav-link <?= basename($_SERVER['PHP_SELF']) === 'index.php' && empty($_GET['type']) ? 'active' : '' ?>">Browse</a>
             <a href="<?= $_base ?>index.php?type=food" class="nav-link <?= ($_GET['type'] ?? '') === 'food' ? 'active' : '' ?>">
-                <span class="nav-icon">🍽️</span> Food Rescue
+                Food Rescue
             </a>
             <a href="<?= $_base ?>index.php?type=ticket" class="nav-link <?= ($_GET['type'] ?? '') === 'ticket' ? 'active' : '' ?>">
-                <span class="nav-icon">🎟️</span> Event Tickets
+                Event Tickets
             </a>
             <a href="<?= $_base ?>recommendations.php" class="nav-link <?= basename($_SERVER['PHP_SELF']) === 'recommendations.php' ? 'active' : '' ?>">
-                <span class="nav-icon">✨</span> For You
+                For You
             </a>
         </nav>
 
@@ -188,7 +188,7 @@ $_cssVersion = file_exists(__DIR__ . "/../assets/css/style.css") ? filemtime(__D
 
             <?php else: ?>
                 <a href="<?= $_base ?>leaderboard.php" class="nav-link">
-                    <span class="nav-icon">🏆</span> Leaderboard
+                    Leaderboard
                 </a>
                 <a href="<?= $_base ?>login.php" class="btn-ghost-login">Log In</a>
                 <a href="<?= $_base ?>register.php" class="btn-primary-coral">Get Started</a>
@@ -210,10 +210,10 @@ $_cssVersion = file_exists(__DIR__ . "/../assets/css/style.css") ? filemtime(__D
 <!-- Mobile Navigation Drawer -->
 <div class="mobile-nav-drawer" id="mobileNavDrawer">
     <a href="<?= $_base ?>index.php" class="mobile-nav-link">Browse Deals</a>
-    <a href="<?= $_base ?>index.php?type=food" class="mobile-nav-link">🍽️ Food Rescue</a>
-    <a href="<?= $_base ?>index.php?type=ticket" class="mobile-nav-link">🎟️ Event Tickets</a>
-    <a href="<?= $_base ?>recommendations.php" class="mobile-nav-link">✨ Recommended</a>
-    <a href="<?= $_base ?>leaderboard.php" class="mobile-nav-link">🏆 Leaderboard</a>
+    <a href="<?= $_base ?>index.php?type=food" class="mobile-nav-link">Food Rescue</a>
+    <a href="<?= $_base ?>index.php?type=ticket" class="mobile-nav-link">Event Tickets</a>
+    <a href="<?= $_base ?>recommendations.php" class="mobile-nav-link">Recommended</a>
+    <a href="<?= $_base ?>leaderboard.php" class="mobile-nav-link">Leaderboard</a>
 
     <?php if ($_loggedIn): ?>
         <div class="mobile-drawer-divider"></div>

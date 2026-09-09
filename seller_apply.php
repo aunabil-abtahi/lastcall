@@ -234,6 +234,9 @@ require_once __DIR__ . "/includes/header.php";
                     </small>
                 </div>
 
+                <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 1rem; margin-bottom: 0.5rem; text-align: center;">
+                    By submitting this application, you agree to our <a href="terms.php" target="_blank" style="color: var(--brand-coral); text-decoration: underline;">Terms and Conditions</a>.
+                </div>
                 <button type="submit" class="primary-button" style="margin-top: 0.5rem;">
                     <?= ($existingProfile && $existingProfile["verification_status"] === "rejected") ? "Update &amp; Resubmit Application" : "Submit Application for Verification" ?>
                 </button>

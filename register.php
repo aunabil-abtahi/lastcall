@@ -247,7 +247,7 @@ require_once __DIR__ . "/includes/header.php";
 
             <label class="checkbox-row">
                 <input type="checkbox" name="terms_accepted" required>
-                <span>I accept the LastCall terms and conditions.</span>
+                <span>I accept the LastCall <a href="terms.php" target="_blank" style="color: var(--brand-coral); text-decoration: underline;">terms and conditions</a>.</span>
             </label>
 
             <button type="submit" class="primary-button">
