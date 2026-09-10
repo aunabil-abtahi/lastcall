@@ -1,4 +1,6 @@
+CREATE DATABASE IF NOT EXISTS lastcall;
 USE lastcall;
+
 
 -- Locations
 INSERT INTO locations (city, area, address_line) VALUES

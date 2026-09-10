@@ -1,4 +1,6 @@
+CREATE DATABASE IF NOT EXISTS lastcall;
 USE lastcall;
+
 
 -- 1. Locations
 CREATE TABLE locations (

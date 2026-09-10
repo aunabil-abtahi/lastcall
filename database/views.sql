@@ -1,4 +1,6 @@
+CREATE DATABASE IF NOT EXISTS lastcall;
 USE lastcall;
+
 
 -- ==========================================================
 -- Views for Seller Analytics & Reviews Ecosystem (Phase 4)
