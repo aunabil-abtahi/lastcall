@@ -83,9 +83,13 @@ if (isset($pdo)) {
                 <p class="footer-safety-text">
                     All event tickets are cryptographically verified. Food pickup is strictly timed to guarantee freshness.
                 </p>
-                <div class="verified-pill">
+                <div class="verified-pill" style="margin-bottom: 20px;">
                     🛡️ Verified Guarantee
                 </div>
+                <h4>Contact Support</h4>
+                <ul>
+                    <li><a href="mailto:aunabilabtahi@gmail.com" style="color: var(--brand-coral);">aunabilabtahi@gmail.com</a></li>
+                </ul>
             </div>
         </div>
 
