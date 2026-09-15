@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "ui-ux-designer": {
+      "source": "rmyndharis/antigravity-skills",
+      "sourceType": "github",
+      "skillPath": "skills/ui-ux-designer/SKILL.md",
+      "computedHash": "a03cd55c9300699bd5aeee986abc576384f579eeed56d3fd8d7124654eea5485"
+    }
+  }
+}

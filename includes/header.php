@@ -91,19 +91,19 @@ $_cssVersion = file_exists(__DIR__ . "/../assets/css/style.css") ? filemtime(__D
 
                         <div class="dropdown-group">
                             <a href="<?= $_base ?>my_orders.php" class="dropdown-link">
-                                <span class="dd-icon">📦</span> My Orders
+                                My Orders
                             </a>
                             <a href="<?= $_base ?>my_tickets.php" class="dropdown-link">
-                                <span class="dd-icon">🎟️</span> My Tickets Wallet
+                                My Tickets Wallet
                             </a>
                             <a href="<?= $_base ?>preferences.php" class="dropdown-link">
-                                <span class="dd-icon">⚙️</span> Deal Preferences
+                                Deal Preferences
                             </a>
                             <a href="<?= $_base ?>followed_sellers.php" class="dropdown-link">
-                                <span class="dd-icon">❤️</span> Followed Vendors
+                                Followed Vendors
                             </a>
                             <a href="<?= $_base ?>leaderboard.php" class="dropdown-link">
-                                <span class="dd-icon">🏆</span> Community Leaderboard
+                                Community Leaderboard
                             </a>
                         </div>
 
@@ -111,7 +111,7 @@ $_cssVersion = file_exists(__DIR__ . "/../assets/css/style.css") ? filemtime(__D
                             <div class="dropdown-divider"></div>
                             <div class="dropdown-group">
                                 <a href="<?= $_base ?>seller_apply.php" class="dropdown-link highlight-link">
-                                    <span class="dd-icon">🏪</span> Become a Verified Seller
+                                    Become a Verified Seller
                                 </a>
                             </div>
                         <?php endif; ?>
@@ -121,19 +121,19 @@ $_cssVersion = file_exists(__DIR__ . "/../assets/css/style.css") ? filemtime(__D
                             <div class="dropdown-label">SELLER PORTAL</div>
                             <div class="dropdown-group">
                                 <a href="<?= $_base ?>seller/dashboard.php" class="dropdown-link">
-                                    <span class="dd-icon">📊</span> Seller Dashboard
+                                    Seller Dashboard
                                 </a>
                                 <a href="<?= $_base ?>seller/sales.php" class="dropdown-link">
-                                    <span class="dd-icon">💰</span> Sales Records
+                                    Sales Records
                                 </a>
                                 <a href="<?= $_base ?>seller/reviews.php" class="dropdown-link">
-                                    <span class="dd-icon">⭐</span> Customer Reviews
+                                    Customer Reviews
                                 </a>
                                 <a href="<?= $_base ?>seller/create_food_listing.php" class="dropdown-link">
-                                    <span class="dd-icon">➕</span> Post Surplus Food
+                                    Post Surplus Food
                                 </a>
                                 <a href="<?= $_base ?>seller/create_ticket_listing.php" class="dropdown-link">
-                                    <span class="dd-icon">➕</span> List Event Ticket
+                                    List Event Ticket
                                 </a>
                             </div>
                         <?php endif; ?>
@@ -143,33 +143,33 @@ $_cssVersion = file_exists(__DIR__ . "/../assets/css/style.css") ? filemtime(__D
                             <div class="dropdown-label">ADMINISTRATION &amp; DEMO</div>
                             <div class="dropdown-group">
                                 <a href="<?= $_base ?>admin/dashboard.php" class="dropdown-link highlight-link">
-                                    <span class="dd-icon">📊</span> <strong>Admin Dashboard</strong>
+                                    <strong>Admin Dashboard</strong>
                                 </a>
                                 <a href="<?= $_base ?>admin/users.php" class="dropdown-link">
-                                    <span class="dd-icon">👥</span> User Management
+                                    User Management
                                 </a>
                                 <a href="<?= $_base ?>admin/sellers.php" class="dropdown-link">
-                                    <span class="dd-icon">🛡️</span> Seller Verification
+                                    Seller Verification
                                 </a>
                                 <a href="<?= $_base ?>admin/tickets.php" class="dropdown-link">
-                                    <span class="dd-icon">🎫</span> Ticket Verification
+                                    Ticket Verification
                                 </a>
                                 <a href="<?= $_base ?>admin/orders.php" class="dropdown-link">
-                                    <span class="dd-icon">📋</span> Platform Orders
+                                    Platform Orders
                                 </a>
                                 <a href="<?= $_base ?>admin/reports.php" class="dropdown-link">
-                                    <span class="dd-icon">🚩</span> Moderation Reports
+                                    Moderation Reports
                                 </a>
                                 <form action="<?= $_base ?>admin/seed_demo.php" method="POST" style="margin: 0; padding: 0;">
                                     <?= csrf_field() ?>
                                     <input type="hidden" name="action" value="seed">
                                     <input type="hidden" name="return_to" value="<?= e($_SERVER['REQUEST_URI'] ?? 'index.php') ?>">
                                     <button type="submit" class="dropdown-link" style="width: 100%; border: none; cursor: pointer; text-align: left; font-family: inherit;">
-                                        <span class="dd-icon">⚡</span> Seed Demo Listings
+                                        Seed Demo Listings
                                     </button>
                                 </form>
                                 <a href="<?= $_base ?>admin/seed_demo.php" class="dropdown-link">
-                                    <span class="dd-icon">🛠️</span> Demo Data Studio
+                                    Demo Data Studio
                                 </a>
                             </div>
                         <?php endif; ?>
@@ -177,10 +177,10 @@ $_cssVersion = file_exists(__DIR__ . "/../assets/css/style.css") ? filemtime(__D
                         <div class="dropdown-divider"></div>
                         <div class="dropdown-group">
                             <a href="<?= $_base ?>profile.php" class="dropdown-link">
-                                <span class="dd-icon">👤</span> Profile &amp; Settings
+                                Profile &amp; Settings
                             </a>
                             <a href="<?= $_base ?>logout.php" class="dropdown-link logout-link">
-                                <span class="dd-icon">🚪</span> Sign Out
+                                Sign Out
                             </a>
                         </div>
                     </div>
@@ -217,30 +217,30 @@ $_cssVersion = file_exists(__DIR__ . "/../assets/css/style.css") ? filemtime(__D
 
     <?php if ($_loggedIn): ?>
         <div class="mobile-drawer-divider"></div>
-        <a href="<?= $_base ?>my_orders.php" class="mobile-nav-link">📦 My Orders</a>
-        <a href="<?= $_base ?>my_tickets.php" class="mobile-nav-link">🎟️ My Tickets</a>
-        <a href="<?= $_base ?>preferences.php" class="mobile-nav-link">⚙️ Preferences</a>
-        <a href="<?= $_base ?>followed_sellers.php" class="mobile-nav-link">❤️ Followed Vendors</a>
+        <a href="<?= $_base ?>my_orders.php" class="mobile-nav-link">My Orders</a>
+        <a href="<?= $_base ?>my_tickets.php" class="mobile-nav-link">My Tickets</a>
+        <a href="<?= $_base ?>preferences.php" class="mobile-nav-link">Preferences</a>
+        <a href="<?= $_base ?>followed_sellers.php" class="mobile-nav-link">Followed Vendors</a>
 
         <?php if ($_role === "seller"): ?>
             <div class="mobile-drawer-divider"></div>
-            <a href="<?= $_base ?>seller/dashboard.php" class="mobile-nav-link">📊 Seller Dashboard</a>
-            <a href="<?= $_base ?>seller/sales.php" class="mobile-nav-link">💰 Sales Records</a>
+            <a href="<?= $_base ?>seller/dashboard.php" class="mobile-nav-link">Seller Dashboard</a>
+            <a href="<?= $_base ?>seller/sales.php" class="mobile-nav-link">Sales Records</a>
         <?php endif; ?>
 
         <?php if ($_role === "admin"): ?>
             <div class="mobile-drawer-divider"></div>
-            <a href="<?= $_base ?>admin/dashboard.php" class="mobile-nav-link">📊 Admin Dashboard</a>
-            <a href="<?= $_base ?>admin/users.php" class="mobile-nav-link">👥 User Management</a>
-            <a href="<?= $_base ?>admin/sellers.php" class="mobile-nav-link">🛡️ Seller Verification</a>
-            <a href="<?= $_base ?>admin/tickets.php" class="mobile-nav-link">🎫 Ticket Verification</a>
-            <a href="<?= $_base ?>admin/orders.php" class="mobile-nav-link">📋 Orders</a>
-            <a href="<?= $_base ?>admin/reports.php" class="mobile-nav-link">🚩 Reports</a>
+            <a href="<?= $_base ?>admin/dashboard.php" class="mobile-nav-link">Admin Dashboard</a>
+            <a href="<?= $_base ?>admin/users.php" class="mobile-nav-link">User Management</a>
+            <a href="<?= $_base ?>admin/sellers.php" class="mobile-nav-link">Seller Verification</a>
+            <a href="<?= $_base ?>admin/tickets.php" class="mobile-nav-link">Ticket Verification</a>
+            <a href="<?= $_base ?>admin/orders.php" class="mobile-nav-link">Orders</a>
+            <a href="<?= $_base ?>admin/reports.php" class="mobile-nav-link">Reports</a>
         <?php endif; ?>
 
         <div class="mobile-drawer-divider"></div>
-        <a href="<?= $_base ?>profile.php" class="mobile-nav-link">👤 Profile</a>
-        <a href="<?= $_base ?>logout.php" class="mobile-nav-link logout-link">🚪 Logout</a>
+        <a href="<?= $_base ?>profile.php" class="mobile-nav-link">Profile</a>
+        <a href="<?= $_base ?>logout.php" class="mobile-nav-link logout-link">Logout</a>
     <?php else: ?>
         <div class="mobile-drawer-divider"></div>
         <a href="<?= $_base ?>login.php" class="mobile-nav-link">Log In</a>
