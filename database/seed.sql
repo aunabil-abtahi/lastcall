@@ -1,5 +1,4 @@
-CREATE DATABASE IF NOT EXISTS lastcall;
-USE lastcall;
+
 
 
 -- Locations
