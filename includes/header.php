@@ -48,32 +48,37 @@ $_cssVersion = file_exists(__DIR__ . "/../assets/css/style.css") ? filemtime(__D
 
 <header class="navbar">
     <div class="nav-container">
-        <!-- Brand Logo (Strictly Capped to 30px height) -->
-        <a class="logo" href="<?= $_base ?>index.php" title="LastCall Home">
-            <img src="<?= $_base ?>assets/images/logo.png" alt="LastCall" class="brand-logo-img" width="120" height="30" style="height:30px; max-height:30px; width:auto; max-width:130px; object-fit:contain; display:block;">
-        </a>
+        <div style="display: flex; align-items: center; gap: 24px; flex: 1;">
+            <!-- Brand Logo (Strictly Capped to 30px height) -->
+            <a class="logo" href="<?= $_base ?>index.php" title="LastCall Home">
+                <img src="<?= $_base ?>assets/images/logo.png" alt="LastCall" class="brand-logo-img" width="120" height="30" style="height:30px; max-height:30px; width:auto; max-width:130px; object-fit:contain; display:block;">
+            </a>
 
-        <!-- Global Search Bar -->
-        <div class="nav-search-wrapper" style="flex: 1; max-width: 400px; margin: 0 20px;">
-            <form action="<?= $_base ?>index.php" method="GET" class="nav-search-form" style="position: relative; display: flex; align-items: center;">
-                
-                <input type="text" name="q" placeholder="Search deals, foods, or tickets..." value="<?= e($_GET['q'] ?? '') ?>" style="width: 100%; padding: 8px 16px 8px 38px; border: 1px solid var(--border-color); border-radius: 20px; font-size: 0.9rem; outline: none; background: var(--bg-alt); transition: all 0.2s;">
-            </form>
+            <!-- Global Search Bar -->
+            <div class="nav-search-wrapper" style="width: 100%; max-width: 320px;">
+                <form action="<?= $_base ?>index.php" method="GET" class="nav-search-form" style="position: relative; display: flex; align-items: center;">
+                    <svg style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8; pointer-events: none;" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <input type="text" name="q" placeholder="Search deals, foods, or tickets..." value="<?= e($_GET['q'] ?? '') ?>" style="width: 100%; padding: 8px 16px 8px 36px; border: 1px solid #e2e8f0; border-radius: 20px; font-size: 13.5px; outline: none; background: #f8fafc; transition: all 0.2s;">
+                </form>
+            </div>
+
+            <!-- Primary Discovery Navigation (Left) -->
+            <nav class="nav-primary">
+                <a href="<?= $_base ?>index.php" class="nav-link <?= basename($_SERVER['PHP_SELF']) === 'index.php' && empty($_GET['type']) ? 'active' : '' ?>">Browse</a>
+                <a href="<?= $_base ?>index.php?type=food" class="nav-link <?= ($_GET['type'] ?? '') === 'food' ? 'active' : '' ?>">
+                    Food Rescue
+                </a>
+                <a href="<?= $_base ?>index.php?type=ticket" class="nav-link <?= ($_GET['type'] ?? '') === 'ticket' ? 'active' : '' ?>">
+                    Event Tickets
+                </a>
+                <a href="<?= $_base ?>recommendations.php" class="nav-link <?= basename($_SERVER['PHP_SELF']) === 'recommendations.php' ? 'active' : '' ?>">
+                    For You
+                </a>
+            </nav>
         </div>
-
-        <!-- Primary Discovery Navigation (Left) -->
-        <nav class="nav-primary">
-            <a href="<?= $_base ?>index.php" class="nav-link <?= basename($_SERVER['PHP_SELF']) === 'index.php' && empty($_GET['type']) ? 'active' : '' ?>">Browse</a>
-            <a href="<?= $_base ?>index.php?type=food" class="nav-link <?= ($_GET['type'] ?? '') === 'food' ? 'active' : '' ?>">
-                Food Rescue
-            </a>
-            <a href="<?= $_base ?>index.php?type=ticket" class="nav-link <?= ($_GET['type'] ?? '') === 'ticket' ? 'active' : '' ?>">
-                Event Tickets
-            </a>
-            <a href="<?= $_base ?>recommendations.php" class="nav-link <?= basename($_SERVER['PHP_SELF']) === 'recommendations.php' ? 'active' : '' ?>">
-                For You
-            </a>
-        </nav>
 
         <!-- User Controls / Account Navigation (Right) -->
         <div class="nav-actions">
