@@ -209,7 +209,7 @@ $valPickupStart = $_POST["pickup_start_at"] ?? (!empty($listing["pickup_start_at
     <section class="form-card" style="max-width: 680px;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
             <span class="badge <?= $isFood ? "" : "ticket" ?>" style="margin-bottom: 0;">
-                <?= $isFood ? "🍽️ Food Rescue Listing" : "🎟️ Event Ticket Listing" ?>
+                <?= $isFood ? "️ Food Rescue Listing" : "️ Event Ticket Listing" ?>
             </span>
             <span class="user-badge <?= e($listing["listing_status"]) ?>">
                 Status: <?= e(ucfirst($listing["listing_status"])) ?>
@@ -222,7 +222,7 @@ $valPickupStart = $_POST["pickup_start_at"] ?? (!empty($listing["pickup_start_at
         <?php if (!empty($errors)): ?>
             <div class="alert alert-error" style="margin-bottom: 20px;">
                 <?php foreach ($errors as $err): ?>
-                    <p>⚠️ <?= e($err) ?></p>
+                    <p>️ <?= e($err) ?></p>
                 <?php endforeach; ?>
             </div>
         <?php endif; ?>
@@ -281,14 +281,14 @@ $valPickupStart = $_POST["pickup_start_at"] ?? (!empty($listing["pickup_start_at
             <?php endif; ?>
 
             <div style="background: var(--surface-muted); padding: 12px 16px; border-radius: var(--radius-md); margin-bottom: 22px; font-size: 13px; color: var(--text-secondary);">
-                📍 <strong>Location:</strong> <?= e($listing["area"]) ?>, <?= e($listing["city"]) ?> 
+                <strong>Location:</strong> <?= e($listing["area"]) ?>, <?= e($listing["city"]) ?> 
                 <span style="color: var(--text-muted);">(tied to your vendor profile)</span>
             </div>
 
             <div style="display: flex; gap: 12px; align-items: center; justify-content: space-between; flex-wrap: wrap;">
                 <div style="display: flex; gap: 10px;">
                     <button type="submit" class="dashboard-button" style="padding: 10px 22px; font-size: 14px; cursor: pointer; border: none;">
-                        💾 Save Changes
+                        Save Changes
                     </button>
                     <a href="dashboard.php" class="btn-demo-action studio-btn" style="padding: 10px 18px; line-height: 1.4;">
                         Cancel
@@ -310,7 +310,7 @@ $valPickupStart = $_POST["pickup_start_at"] ?? (!empty($listing["pickup_start_at
                 <input type="hidden" name="action" value="remove">
                 <input type="hidden" name="listing_id" value="<?= (int) $listing["listing_id"] ?>">
                 <button type="submit" class="btn-demo-action clear-btn" style="padding: 8px 16px; font-size: 13px;">
-                    🗑️ Remove Listing
+                    ️ Remove Listing
                 </button>
             </form>
         </div>

@@ -58,7 +58,7 @@ require_once __DIR__ . "/includes/header.php";
 <main class="auth-page" style="padding: 40px 20px 80px;">
     <section class="form-card" style="max-width: 540px; margin: 0 auto; background: white; border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: 32px; box-shadow: var(--shadow-sm);">
         <h2 style="font-size: 1.5rem; color: var(--brand-navy); margin-top: 0; margin-bottom: 6px;">
-            🚩 Report Listing
+            Report Listing
         </h2>
         <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 16px;">
             Reporting: <strong><?= e($listing["title"]) ?></strong>

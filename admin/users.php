@@ -154,7 +154,7 @@ require_once __DIR__ . "/../includes/header.php";
     <div class="section-heading">
         <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px;">
             <div>
-                <h2>👥 User Directory &amp; Access Control</h2>
+                <h2>User Directory &amp; Access Control</h2>
                 <p>Manage registered buyers, merchants, and platform administrators.</p>
             </div>
             <div>
@@ -180,19 +180,19 @@ require_once __DIR__ . "/../includes/header.php";
         </div>
 
         <div class="kpi-card" style="background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: 1.25rem; box-shadow: var(--shadow-sm);">
-            <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.35rem;">🛍️ Active Buyers</div>
+            <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.35rem;">️ Active Buyers</div>
             <div style="font-size: 1.7rem; font-weight: 800; color: var(--brand-emerald-dark);"><?= (int) $userStats["total_buyers"] ?></div>
             <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 0.2rem;">Customers &amp; ticket buyers</div>
         </div>
 
         <div class="kpi-card" style="background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: 1.25rem; box-shadow: var(--shadow-sm);">
-            <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.35rem;">🏪 Vendors &amp; Sellers</div>
+            <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.35rem;">Vendors &amp; Sellers</div>
             <div style="font-size: 1.7rem; font-weight: 800; color: var(--brand-coral);"><?= (int) $userStats["total_sellers"] ?></div>
             <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 0.2rem;">Food partners &amp; ticket sellers</div>
         </div>
 
         <div class="kpi-card" style="background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: 1.25rem; box-shadow: var(--shadow-sm);">
-            <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.35rem;">⚠️ Flagged / Suspended</div>
+            <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.35rem;">️ Flagged / Suspended</div>
             <div style="font-size: 1.7rem; font-weight: 800; color: <?= (int)$userStats['total_suspended'] > 0 ? '#dc2626' : 'var(--text-muted)' ?>;"><?= (int) $userStats["total_suspended"] ?></div>
             <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 0.2rem;">Access currently restricted</div>
         </div>
@@ -259,7 +259,7 @@ require_once __DIR__ . "/../includes/header.php";
                                         </div>
                                         <?php if (!empty($u["business_name"])): ?>
                                             <div style="font-size: 11.5px; color: var(--text-muted);">
-                                                🏪 <?= e($u["business_name"]) ?>
+                                                <?= e($u["business_name"]) ?>
                                             </div>
                                         <?php endif; ?>
                                     </div>
@@ -271,7 +271,7 @@ require_once __DIR__ . "/../includes/header.php";
                             </td>
                             <td>
                                 <?php if (!empty($u["city"])): ?>
-                                    <span style="font-size: 12.5px;">📍 <?= e($u["area"] ? $u["area"] . ", " : "") ?><?= e($u["city"]) ?></span>
+                                    <span style="font-size: 12.5px;"><?= e($u["area"] ? $u["area"] . ", " : "") ?><?= e($u["city"]) ?></span>
                                 <?php else: ?>
                                     <span style="color: var(--text-muted); font-size: 12px;">—</span>
                                 <?php endif; ?>

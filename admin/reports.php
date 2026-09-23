@@ -204,7 +204,7 @@ require_once __DIR__ . "/../includes/header.php";
     <div class="section-heading">
         <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px;">
             <div>
-                <h2>🚩 Moderation &amp; Dispute Reports</h2>
+                <h2>Moderation &amp; Dispute Reports</h2>
                 <p>Investigate marketplace safety incidents, take down fraudulent listings, and manage account restrictions.</p>
             </div>
             <div>
@@ -227,16 +227,16 @@ require_once __DIR__ . "/../includes/header.php";
             All Reports (<?= (int)$counts["total_reports"] ?>)
         </a>
         <a href="reports.php?status=open" class="btn-demo-action <?= $statusFilter === 'open' ? 'seed-btn' : 'studio-btn' ?>" style="text-decoration: none;">
-            🔴 Open (<?= (int)$counts["count_open"] ?>)
+            Open (<?= (int)$counts["count_open"] ?>)
         </a>
         <a href="reports.php?status=reviewing" class="btn-demo-action <?= $statusFilter === 'reviewing' ? 'seed-btn' : 'studio-btn' ?>" style="text-decoration: none;">
-            🟡 Reviewing (<?= (int)$counts["count_reviewing"] ?>)
+            Reviewing (<?= (int)$counts["count_reviewing"] ?>)
         </a>
         <a href="reports.php?status=resolved" class="btn-demo-action <?= $statusFilter === 'resolved' ? 'seed-btn' : 'studio-btn' ?>" style="text-decoration: none;">
-            🟢 Resolved (<?= (int)$counts["count_resolved"] ?>)
+            Resolved (<?= (int)$counts["count_resolved"] ?>)
         </a>
         <a href="reports.php?status=dismissed" class="btn-demo-action <?= $statusFilter === 'dismissed' ? 'seed-btn' : 'studio-btn' ?>" style="text-decoration: none;">
-            ⚪ Dismissed (<?= (int)$counts["count_dismissed"] ?>)
+            Dismissed (<?= (int)$counts["count_dismissed"] ?>)
         </a>
     </div>
 
@@ -352,7 +352,7 @@ require_once __DIR__ . "/../includes/header.php";
                                             <input type="hidden" name="report_id" value="<?= (int) $r["report_id"] ?>">
                                             <input type="hidden" name="listing_id" value="<?= (int) $r["listing_id"] ?>">
                                             <button type="submit" class="btn-demo-action clear-btn" style="padding: 3px 8px; font-size: 11px; width: 100%; justify-content: center;">
-                                                🗑️ Takedown Listing
+                                                ️ Takedown Listing
                                             </button>
                                         </form>
                                     <?php endif; ?>
@@ -364,7 +364,7 @@ require_once __DIR__ . "/../includes/header.php";
                                             <input type="hidden" name="report_id" value="<?= (int) $r["report_id"] ?>">
                                             <input type="hidden" name="reported_user_id" value="<?= (int) $r["reported_user_id"] ?>">
                                             <button type="submit" class="btn-demo-action clear-btn" style="padding: 3px 8px; font-size: 11px; width: 100%; justify-content: center; background: #fff1f2; color: #e11d48; border-color: #fecdd3;">
-                                                ⛔ Suspend User
+                                                Suspend User
                                             </button>
                                         </form>
                                     <?php endif; ?>

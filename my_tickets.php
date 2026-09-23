@@ -79,13 +79,13 @@ require_once __DIR__ . "/includes/header.php";
 
                     <div class="ticket-details">
                         <p style="margin: 4px 0;">
-                            📍 <strong>Venue:</strong> <?= e($t["venue_name"]) ?>, <?= e($t["area"]) ?>, <?= e($t["city"]) ?>
+                            <strong>Venue:</strong> <?= e($t["venue_name"]) ?>, <?= e($t["area"]) ?>, <?= e($t["city"]) ?>
                         </p>
                         <p style="margin: 4px 0;">
-                            📅 <strong>Date & Time:</strong> <?= date("l, d M Y — h:i A", strtotime($t["event_start_at"])) ?>
+                            <strong>Date & Time:</strong> <?= date("l, d M Y — h:i A", strtotime($t["event_start_at"])) ?>
                         </p>
                         <p style="margin: 4px 0;">
-                            👤 <strong>Organizer:</strong> <?= e($t["organizer_name"]) ?>
+                            <strong>Organizer:</strong> <?= e($t["organizer_name"]) ?>
                         </p>
                         <?php if ($t["completed_at"]): ?>
                             <p style="margin: 4px 0; font-size: 12px; color: #8b93a1;">
@@ -117,7 +117,7 @@ require_once __DIR__ . "/includes/header.php";
         </div>
     <?php else: ?>
         <div class="empty-state" style="text-align: center; padding: 48px 20px; background: white; border-radius: 12px; border: 1px solid #e2e8f0;">
-            <div style="font-size: 48px; margin-bottom: 14px;">🎟️</div>
+            <div style="font-size: 48px; margin-bottom: 14px;">️</div>
             <h3 style="margin-bottom: 8px;">Your Ticket Wallet is Empty</h3>
             <p style="color: #64748b; max-width: 480px; margin: 0 auto 20px;">
                 You don't have any event tickets right now. When you reserve and purchase concert, theater, or festival tickets on LastCall, they will appear here.

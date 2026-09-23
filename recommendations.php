@@ -101,13 +101,13 @@ require_once __DIR__ . "/includes/header.php";
                     </p>
 
                     <p class="location">
-                        📍 <?= e($l["area"]) ?>, <?= e($l["city"]) ?>
+                        <?= e($l["area"]) ?>, <?= e($l["city"]) ?>
                     </p>
 
                     <p class="meta">⏰ <?= e($timeLeft) ?></p>
 
                     <?php if ($isFood && isset($l["quantity_available"])): ?>
-                        <p class="meta">🍽 <?= (int) $l["quantity_available"] ?> available</p>
+                        <p class="meta"><?= (int) $l["quantity_available"] ?> available</p>
                     <?php endif; ?>
 
                     <div class="price-row">

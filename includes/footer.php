@@ -48,7 +48,7 @@ if (isset($pdo)) {
                 </p>
                 <?php if ($_footerMealsRescued > 0 || $_footerTotalSaved > 0): ?>
                     <div class="impact-badge-card">
-                        <div class="impact-icon">⏳</div>
+                        <div class="impact-icon"></div>
                         <div class="impact-text">
                             <span class="impact-number"><?= number_format($_footerMealsRescued) ?> Meals Rescued</span>
                             <span class="impact-sub">৳<?= number_format($_footerTotalSaved, 0) ?> Saved</span>
@@ -61,10 +61,10 @@ if (isset($pdo)) {
                 <h4>Marketplace</h4>
                 <ul>
                     <li><a href="<?= $_base ?>index.php">Browse All Deals</a></li>
-                    <li><a href="<?= $_base ?>index.php?type=food">🍽️ Food Rescue</a></li>
-                    <li><a href="<?= $_base ?>index.php?type=ticket">🎟️ Event Tickets</a></li>
-                    <li><a href="<?= $_base ?>recommendations.php">✨ For You</a></li>
-                    <li><a href="<?= $_base ?>leaderboard.php">🏆 Leaderboard</a></li>
+                    <li><a href="<?= $_base ?>index.php?type=food" style="display:flex; align-items:center; gap:6px;"> Food Rescue</a></li>
+                    <li><a href="<?= $_base ?>index.php?type=ticket" style="display:flex; align-items:center; gap:6px;"> Event Tickets</a></li>
+                    <li><a href="<?= $_base ?>recommendations.php" style="display:flex; align-items:center; gap:6px;"> For You</a></li>
+                    <li><a href="<?= $_base ?>leaderboard.php" style="display:flex; align-items:center; gap:6px;"> Leaderboard</a></li>
                 </ul>
             </div>
 
@@ -83,8 +83,8 @@ if (isset($pdo)) {
                 <p class="footer-safety-text">
                     All event tickets are cryptographically verified. Food pickup is strictly timed to guarantee freshness.
                 </p>
-                <div class="verified-pill" style="margin-bottom: 20px;">
-                    🛡️ Verified Guarantee
+                <div class="verified-pill" style="margin-bottom: 20px; display: inline-flex; align-items: center; gap: 6px;">
+                     Verified Guarantee
                 </div>
                 <h4>Contact Support</h4>
                 <ul>
@@ -99,6 +99,7 @@ if (isset($pdo)) {
         </div>
     </div>
 </footer>
+
 
 </body>
 </html>

@@ -95,11 +95,11 @@ require_once __DIR__ . "/includes/header.php";
                 <label style="display: block; font-weight: 600; margin-bottom: 6px;">Rating (1 to 5 Stars) *</label>
                 <select name="rating" required style="width: 100%; padding: 10px 14px; border: 1px solid var(--border-subtle); border-radius: var(--radius-md);">
                     <option value="">Choose rating</option>
-                    <option value="5">⭐⭐⭐⭐⭐ 5 Stars (Exceptional)</option>
-                    <option value="4">⭐⭐⭐⭐ 4 Stars (Great)</option>
-                    <option value="3">⭐⭐⭐ 3 Stars (Average)</option>
-                    <option value="2">⭐⭐ 2 Stars (Poor)</option>
-                    <option value="1">⭐ 1 Star (Very Bad)</option>
+                    <option value="5">5 Stars (Exceptional)</option>
+                    <option value="4">4 Stars (Great)</option>
+                    <option value="3">3 Stars (Average)</option>
+                    <option value="2">2 Stars (Poor)</option>
+                    <option value="1">1 Star (Very Bad)</option>
                 </select>
             </div>
 

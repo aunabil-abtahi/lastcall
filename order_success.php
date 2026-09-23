@@ -35,7 +35,7 @@ require_once __DIR__ . "/includes/header.php";
             <h1>Order not found</h1>
             <p class="form-intro">This completed order is unavailable.</p>
         <?php else: ?>
-            <div class="success-icon">✓</div>
+            <div class="success-icon"></div>
             <h1>Order complete</h1>
             <p class="form-intro">
                 <?= $order["listing_type"] === "ticket"

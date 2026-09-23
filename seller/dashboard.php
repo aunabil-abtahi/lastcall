@@ -74,31 +74,31 @@ require_once __DIR__ . "/../includes/header.php";
     <!-- KPI Metric Cards -->
     <div class="kpi-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
         <div class="kpi-card" style="background: var(--bg-card, #ffffff); border: 1px solid var(--border-color, #e2e8f0); border-radius: 12px; padding: 1.25rem; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
-            <div style="font-size: 0.82rem; color: var(--text-muted, #64748b); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.4rem;">💰 Total Revenue</div>
+            <div style="font-size: 0.82rem; color: var(--text-muted, #64748b); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.4rem;">Total Revenue</div>
             <div style="font-size: 1.6rem; font-weight: 800; color: var(--text-color, #0f172a);">৳<?= number_format((float)$analytics['total_revenue'], 2) ?></div>
             <div style="font-size: 0.78rem; color: var(--text-muted, #64748b); margin-top: 0.25rem;"><?= (int)$analytics['completed_orders'] ?> completed orders</div>
         </div>
 
         <div class="kpi-card" style="background: var(--bg-card, #ffffff); border: 1px solid var(--border-color, #e2e8f0); border-radius: 12px; padding: 1.25rem; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
-            <div style="font-size: 0.82rem; color: var(--text-muted, #64748b); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.4rem;">⚡ Active Deals</div>
+            <div style="font-size: 0.82rem; color: var(--text-muted, #64748b); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.4rem;">Active Deals</div>
             <div style="font-size: 1.6rem; font-weight: 800; color: var(--primary, #f97316);"><?= (int)$analytics['active_listings'] ?></div>
             <div style="font-size: 0.78rem; color: var(--text-muted, #64748b); margin-top: 0.25rem;">of <?= (int)$analytics['total_listings'] ?> total listings</div>
         </div>
 
         <div class="kpi-card" style="background: var(--bg-card, #ffffff); border: 1px solid var(--border-color, #e2e8f0); border-radius: 12px; padding: 1.25rem; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
-            <div style="font-size: 0.82rem; color: var(--text-muted, #64748b); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.4rem;">📦 Items Rescued</div>
+            <div style="font-size: 0.82rem; color: var(--text-muted, #64748b); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.4rem;">Items Rescued</div>
             <div style="font-size: 1.6rem; font-weight: 800; color: var(--text-color, #0f172a);"><?= (int)$analytics['total_items_sold'] ?></div>
             <div style="font-size: 0.78rem; color: var(--text-muted, #64748b); margin-top: 0.25rem;">units saved from waste</div>
         </div>
 
         <div class="kpi-card" style="background: var(--bg-card, #ffffff); border: 1px solid var(--border-color, #e2e8f0); border-radius: 12px; padding: 1.25rem; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
-                <div style="font-size: 0.82rem; color: var(--text-muted, #64748b); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">⭐ Reputation</div>
+                <div style="font-size: 0.82rem; color: var(--text-muted, #64748b); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">Reputation</div>
                 <a href="reviews.php" style="font-size: 0.75rem; color: var(--primary, #f97316); font-weight: 600; text-decoration: none;">View Reviews &rarr;</a>
             </div>
             <div style="font-size: 1.6rem; font-weight: 800; color: var(--text-color, #0f172a);">
                 <?= (float)$analytics['average_rating'] > 0 ? number_format((float)$analytics['average_rating'], 1) : "—" ?>
-                <span style="font-size: 1rem; color: #f59e0b;">★</span>
+                <span style="font-size: 1rem; color: #f59e0b;"></span>
             </div>
             <div style="font-size: 0.78rem; color: var(--text-muted, #64748b); margin-top: 0.25rem;">
                 <?= (int)$analytics['review_count'] ?> customer <?= (int)$analytics['review_count'] === 1 ? 'review' : 'reviews' ?>

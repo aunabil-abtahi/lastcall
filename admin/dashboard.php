@@ -136,7 +136,7 @@ require_once __DIR__ . "/../includes/header.php";
         <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px;">
             <div>
                 <h2 style="font-size: 1.85rem; font-weight: 800; color: var(--brand-navy); margin-bottom: 6px;">
-                    📊 Platform Operations Center
+                    Platform Operations Center
                 </h2>
                 <p style="color: var(--text-secondary); margin: 0; font-size: 0.95rem;">
                     Real-time marketplace analytics, vendor verification, dispute resolution, and system controls.
@@ -148,11 +148,11 @@ require_once __DIR__ . "/../includes/header.php";
                     <input type="hidden" name="action" value="seed">
                     <input type="hidden" name="return_to" value="dashboard.php">
                     <button type="submit" class="btn-demo-action seed-btn" title="Add fresh demo inventory">
-                        ⚡ Quick Seed Demo
+                        Quick Seed Demo
                     </button>
                 </form>
                 <a href="seed_demo.php" class="btn-demo-action studio-btn">
-                    🛠️ Demo Studio
+                    ️ Demo Studio
                 </a>
             </div>
         </div>
@@ -171,7 +171,7 @@ require_once __DIR__ . "/../includes/header.php";
             <div>
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                     <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">Gross Volume (GMV)</span>
-                    <span style="font-size: 1.15rem;">💰</span>
+                    <span style="font-size: 1.15rem;"></span>
                 </div>
                 <div class="kpi-value" style="font-size: 1.85rem; font-weight: 800; color: var(--brand-navy); margin-bottom: 4px;">
                     ৳<?= number_format($gmv, 2) ?>
@@ -188,7 +188,7 @@ require_once __DIR__ . "/../includes/header.php";
             <div>
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                     <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">Items Rescued</span>
-                    <span style="font-size: 1.15rem;">🌱</span>
+                    <span style="font-size: 1.15rem;"></span>
                 </div>
                 <div class="kpi-value" style="font-size: 1.85rem; font-weight: 800; color: var(--brand-emerald-dark); margin-bottom: 4px;">
                     <?= number_format($rescuedItems) ?>
@@ -205,7 +205,7 @@ require_once __DIR__ . "/../includes/header.php";
             <div>
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                     <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">Approved Vendors</span>
-                    <span style="font-size: 1.15rem;">🏪</span>
+                    <span style="font-size: 1.15rem;"></span>
                 </div>
                 <div class="kpi-value" style="font-size: 1.85rem; font-weight: 800; color: var(--brand-navy); margin-bottom: 4px;">
                     <?= $approvedSellers ?>
@@ -213,7 +213,7 @@ require_once __DIR__ . "/../includes/header.php";
             </div>
             <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 8px; border-top: 1px solid var(--border-subtle); padding-top: 8px; display: flex; justify-content: space-between; align-items: center;">
                 <?php if ($pendingSellers > 0): ?>
-                    <span style="color: #b45309; font-weight: 700;">⚠️ <?= $pendingSellers ?> pending</span>
+                    <span style="color: #b45309; font-weight: 700;">️ <?= $pendingSellers ?> pending</span>
                 <?php else: ?>
                     <span style="color: #047857;">All approved</span>
                 <?php endif; ?>
@@ -226,7 +226,7 @@ require_once __DIR__ . "/../includes/header.php";
             <div>
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                     <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">Verified Tickets</span>
-                    <span style="font-size: 1.15rem;">🎟️</span>
+                    <span style="font-size: 1.15rem;">️</span>
                 </div>
                 <div class="kpi-value" style="font-size: 1.85rem; font-weight: 800; color: var(--brand-navy); margin-bottom: 4px;">
                     <?= $verifiedTickets ?>
@@ -234,7 +234,7 @@ require_once __DIR__ . "/../includes/header.php";
             </div>
             <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 8px; border-top: 1px solid var(--border-subtle); padding-top: 8px; display: flex; justify-content: space-between; align-items: center;">
                 <?php if ($pendingTickets > 0): ?>
-                    <span style="color: #b45309; font-weight: 700;">⚠️ <?= $pendingTickets ?> review needed</span>
+                    <span style="color: #b45309; font-weight: 700;">️ <?= $pendingTickets ?> review needed</span>
                 <?php else: ?>
                     <span><?= $activeTicketListings ?> active on feed</span>
                 <?php endif; ?>
@@ -247,7 +247,7 @@ require_once __DIR__ . "/../includes/header.php";
             <div>
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                     <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">Total Accounts</span>
-                    <span style="font-size: 1.15rem;">👥</span>
+                    <span style="font-size: 1.15rem;"></span>
                 </div>
                 <div class="kpi-value" style="font-size: 1.85rem; font-weight: 800; color: var(--brand-navy); margin-bottom: 4px;">
                     <?= $totalUsers ?>
@@ -264,14 +264,14 @@ require_once __DIR__ . "/../includes/header.php";
             <div>
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                     <span style="font-size: 0.8rem; color: <?= $openReports > 0 ? '#b91c1c' : 'var(--text-muted)' ?>; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">Dispute Reports</span>
-                    <span style="font-size: 1.15rem;">🚩</span>
+                    <span style="font-size: 1.15rem;"></span>
                 </div>
                 <div class="kpi-value" style="font-size: 1.85rem; font-weight: 800; color: <?= $openReports > 0 ? '#dc2626' : 'var(--brand-emerald-dark)' ?>; margin-bottom: 4px;">
                     <?= $openReports ?>
                 </div>
             </div>
             <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 8px; border-top: 1px solid var(--border-subtle); padding-top: 8px; display: flex; justify-content: space-between; align-items: center;">
-                <span><?= $openReports > 0 ? 'Requires attention' : 'All clear 🎉' ?></span>
+                <span><?= $openReports > 0 ? 'Requires attention' : 'All clear ' ?></span>
                 <a href="reports.php" style="color: var(--brand-coral); font-weight: 600; text-decoration: none; font-size: 0.78rem;">Triage &rarr;</a>
             </div>
         </div>
@@ -280,11 +280,11 @@ require_once __DIR__ . "/../includes/header.php";
     <!-- Quick Action Hub -->
     <div style="background: white; border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: 20px 24px; margin-bottom: 32px; box-shadow: var(--shadow-sm);">
         <div style="font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 14px;">
-            ⚡ Administration Quick Actions
+            Administration Quick Actions
         </div>
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px;">
             <a href="users.php" class="dropdown-link" style="padding: 12px 14px; border: 1px solid var(--border-subtle); border-radius: var(--radius-md); text-decoration: none; display: flex; align-items: center; gap: 10px; background: #f8fafc; transition: all 0.2s;">
-                <span style="font-size: 1.25rem;">👥</span>
+                <span style="font-size: 1.25rem;"></span>
                 <div>
                     <div style="font-weight: 700; font-size: 0.88rem; color: var(--brand-navy);">User Directory</div>
                     <div style="font-size: 0.75rem; color: var(--text-muted);"><?= $totalUsers ?> accounts</div>
@@ -292,7 +292,7 @@ require_once __DIR__ . "/../includes/header.php";
             </a>
 
             <a href="sellers.php" class="dropdown-link" style="padding: 12px 14px; border: 1px solid var(--border-subtle); border-radius: var(--radius-md); text-decoration: none; display: flex; align-items: center; gap: 10px; background: #f8fafc; transition: all 0.2s;">
-                <span style="font-size: 1.25rem;">🛡️</span>
+                <span style="font-size: 1.25rem;">️</span>
                 <div>
                     <div style="font-weight: 700; font-size: 0.88rem; color: var(--brand-navy);">Seller KYC</div>
                     <div style="font-size: 0.75rem; color: <?= $pendingSellers > 0 ? '#b45309; font-weight:700;' : 'var(--text-muted);' ?>">
@@ -302,7 +302,7 @@ require_once __DIR__ . "/../includes/header.php";
             </a>
 
             <a href="tickets.php" class="dropdown-link" style="padding: 12px 14px; border: 1px solid var(--border-subtle); border-radius: var(--radius-md); text-decoration: none; display: flex; align-items: center; gap: 10px; background: #f8fafc; transition: all 0.2s;">
-                <span style="font-size: 1.25rem;">🎫</span>
+                <span style="font-size: 1.25rem;"></span>
                 <div>
                     <div style="font-weight: 700; font-size: 0.88rem; color: var(--brand-navy);">Ticket Verification</div>
                     <div style="font-size: 0.75rem; color: <?= $pendingTickets > 0 ? '#b45309; font-weight:700;' : 'var(--text-muted);' ?>">
@@ -312,7 +312,7 @@ require_once __DIR__ . "/../includes/header.php";
             </a>
 
             <a href="orders.php" class="dropdown-link" style="padding: 12px 14px; border: 1px solid var(--border-subtle); border-radius: var(--radius-md); text-decoration: none; display: flex; align-items: center; gap: 10px; background: #f8fafc; transition: all 0.2s;">
-                <span style="font-size: 1.25rem;">📋</span>
+                <span style="font-size: 1.25rem;"></span>
                 <div>
                     <div style="font-weight: 700; font-size: 0.88rem; color: var(--brand-navy);">Platform Orders</div>
                     <div style="font-size: 0.75rem; color: var(--text-muted);"><?= $totalOrdersCount ?> lifetime orders</div>
@@ -320,7 +320,7 @@ require_once __DIR__ . "/../includes/header.php";
             </a>
 
             <a href="reports.php" class="dropdown-link" style="padding: 12px 14px; border: 1px solid var(--border-subtle); border-radius: var(--radius-md); text-decoration: none; display: flex; align-items: center; gap: 10px; background: #f8fafc; transition: all 0.2s;">
-                <span style="font-size: 1.25rem;">🚩</span>
+                <span style="font-size: 1.25rem;"></span>
                 <div>
                     <div style="font-weight: 700; font-size: 0.88rem; color: var(--brand-navy);">Moderation Triage</div>
                     <div style="font-size: 0.75rem; color: <?= $openReports > 0 ? '#b91c1c; font-weight:700;' : 'var(--text-muted);' ?>">
@@ -330,7 +330,7 @@ require_once __DIR__ . "/../includes/header.php";
             </a>
 
             <a href="seed_demo.php" class="dropdown-link" style="padding: 12px 14px; border: 1px solid var(--border-subtle); border-radius: var(--radius-md); text-decoration: none; display: flex; align-items: center; gap: 10px; background: #f8fafc; transition: all 0.2s;">
-                <span style="font-size: 1.25rem;">🛠️</span>
+                <span style="font-size: 1.25rem;">️</span>
                 <div>
                     <div style="font-weight: 700; font-size: 0.88rem; color: var(--brand-navy);">Data Studio</div>
                     <div style="font-size: 0.75rem; color: var(--text-muted);">Reset &amp; seed demo items</div>
@@ -345,7 +345,7 @@ require_once __DIR__ . "/../includes/header.php";
         <div style="background: white; border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); overflow: hidden; display: flex; flex-direction: column;">
             <div style="padding: 18px 20px; border-bottom: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center;">
                 <div style="font-weight: 700; font-size: 1rem; color: var(--brand-navy); display: flex; align-items: center; gap: 8px;">
-                    <span>📦</span> Recent Transactions
+                    <span></span> Recent Transactions
                 </div>
                 <a href="orders.php" style="color: var(--brand-coral); font-size: 0.82rem; font-weight: 600; text-decoration: none;">
                     View All (<?= $totalOrdersCount ?>) &rarr;
@@ -410,7 +410,7 @@ require_once __DIR__ . "/../includes/header.php";
         <div style="background: white; border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); overflow: hidden; display: flex; flex-direction: column;">
             <div style="padding: 18px 20px; border-bottom: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center;">
                 <div style="font-weight: 700; font-size: 1rem; color: var(--brand-navy); display: flex; align-items: center; gap: 8px;">
-                    <span>🚩</span> Moderation Triage
+                    <span></span> Moderation Triage
                 </div>
                 <a href="reports.php" style="color: var(--brand-coral); font-size: 0.82rem; font-weight: 600; text-decoration: none;">
                     All Reports (<?= $totalReports ?>) &rarr;
@@ -420,7 +420,7 @@ require_once __DIR__ . "/../includes/header.php";
             <div style="flex: 1; overflow-x: auto; -webkit-overflow-scrolling: touch;">
                 <?php if (empty($recentReports)): ?>
                     <div style="padding: 40px 20px; text-align: center; color: var(--text-muted);">
-                        <div style="font-size: 2rem; margin-bottom: 8px;">🎉</div>
+                        <div style="font-size: 2rem; margin-bottom: 8px;"></div>
                         <div style="font-weight: 700; font-size: 0.95rem; color: var(--brand-navy); margin-bottom: 4px;">Zero Open Disputes</div>
                         <div style="font-size: 0.82rem;">The marketplace moderation queue is completely clear.</div>
                     </div>
@@ -440,11 +440,11 @@ require_once __DIR__ . "/../includes/header.php";
                                     <td>
                                         <?php if ($rep["listing_title"]): ?>
                                             <div style="font-weight: 600; font-size: 0.85rem; color: var(--brand-navy); max-width: 170px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="<?= e($rep["listing_title"]) ?>">
-                                                📦 <?= e($rep["listing_title"]) ?>
+                                                <?= e($rep["listing_title"]) ?>
                                             </div>
                                         <?php elseif ($rep["reported_user_name"]): ?>
                                             <div style="font-weight: 600; font-size: 0.85rem; color: var(--brand-navy);">
-                                                👤 <?= e($rep["reported_user_name"]) ?>
+                                                <?= e($rep["reported_user_name"]) ?>
                                             </div>
                                         <?php else: ?>
                                             <div style="font-size: 0.85rem; color: var(--text-muted);">General Concern</div>

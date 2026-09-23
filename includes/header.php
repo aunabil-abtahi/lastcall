@@ -42,6 +42,7 @@ $_cssVersion = file_exists(__DIR__ . "/../assets/css/style.css") ? filemtime(__D
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="<?= $_base ?>assets/css/style.css?v=<?= $_cssVersion ?>">
+    
 </head>
 <body>
 
@@ -51,6 +52,14 @@ $_cssVersion = file_exists(__DIR__ . "/../assets/css/style.css") ? filemtime(__D
         <a class="logo" href="<?= $_base ?>index.php" title="LastCall Home">
             <img src="<?= $_base ?>assets/images/logo.png" alt="LastCall" class="brand-logo-img" width="120" height="30" style="height:30px; max-height:30px; width:auto; max-width:130px; object-fit:contain; display:block;">
         </a>
+
+        <!-- Global Search Bar -->
+        <div class="nav-search-wrapper" style="flex: 1; max-width: 400px; margin: 0 20px;">
+            <form action="<?= $_base ?>index.php" method="GET" class="nav-search-form" style="position: relative; display: flex; align-items: center;">
+                
+                <input type="text" name="q" placeholder="Search deals, foods, or tickets..." value="<?= e($_GET['q'] ?? '') ?>" style="width: 100%; padding: 8px 16px 8px 38px; border: 1px solid var(--border-color); border-radius: 20px; font-size: 0.9rem; outline: none; background: var(--bg-alt); transition: all 0.2s;">
+            </form>
+        </div>
 
         <!-- Primary Discovery Navigation (Left) -->
         <nav class="nav-primary">
@@ -251,7 +260,7 @@ $_cssVersion = file_exists(__DIR__ . "/../assets/css/style.css") ? filemtime(__D
     <div class="flash-banner-wrap" style="width: min(1240px, 92%); margin: 16px auto 0;">
         <div class="alert alert-success" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0; box-shadow: var(--shadow-sm);">
             <div style="display: flex; align-items: center; gap: 8px;">
-                <span>✨</span>
+                
                 <span><?= e($_SESSION["flash_success"]) ?></span>
             </div>
             <button type="button" onclick="this.closest('.flash-banner-wrap').remove();" style="background:none; border:none; font-size:20px; line-height:1; cursor:pointer; color:inherit; opacity:0.7; padding: 0 4px;">&times;</button>

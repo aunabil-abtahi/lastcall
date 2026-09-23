@@ -58,7 +58,7 @@ require_once __DIR__ . "/includes/header.php";
                         ? "1 ticket"
                         : (int) $reservation["quantity"] . " portion(s)" ?>
                 </p>
-                <p>📍 <?= e($reservation["area"]) ?>, <?= e($reservation["city"]) ?></p>
+                <p><?= e($reservation["area"]) ?>, <?= e($reservation["city"]) ?></p>
                 <p class="reservation-expiry">Reserved until: <?= date("h:i:s A", strtotime($reservation["expires_at"])) ?></p>
                 <strong>৳<?= number_format((float) $reservation["reserved_price"], 2) ?></strong>
             </div>

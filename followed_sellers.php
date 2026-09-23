@@ -87,14 +87,14 @@ require_once __DIR__ . "/includes/header.php";
 
                         <?php if (!empty($s["city"])): ?>
                             <p style="color: #687080; font-size: 14px; margin-bottom: 8px;">
-                                📍 <?= e($s["area"] ? $s["area"] . ", " . $s["city"] : $s["city"]) ?>
+                                <?= e($s["area"] ? $s["area"] . ", " . $s["city"] : $s["city"]) ?>
                             </p>
                         <?php endif; ?>
 
                         <!-- Ratings summary -->
                         <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 12px; font-size: 14px;">
                             <?php if ($reviews > 0): ?>
-                                <span style="color: #f5a900; font-weight: bold;">★ <?= number_format($rating, 1) ?></span>
+                                <span style="color: #f5a900; font-weight: bold;"><?= number_format($rating, 1) ?></span>
                                 <span style="color: #8b93a1;">(<?= $reviews ?> review<?= $reviews > 1 ? 's' : '' ?>)</span>
                             <?php else: ?>
                                 <span style="color: #8b93a1; font-size: 13px;">No reviews yet</span>
@@ -105,7 +105,7 @@ require_once __DIR__ . "/includes/header.php";
                         <div style="margin-bottom: 16px;">
                             <?php if ($activeDeals > 0): ?>
                                 <span style="background: #dff5e5; color: #167234; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: bold;">
-                                    🔥 <?= $activeDeals ?> active deal<?= $activeDeals > 1 ? 's' : '' ?> now
+                                    <?= $activeDeals ?> active deal<?= $activeDeals > 1 ? 's' : '' ?> now
                                 </span>
                             <?php else: ?>
                                 <span style="background: #f1f3f7; color: #8b93a1; padding: 4px 10px; border-radius: 12px; font-size: 12px;">
@@ -135,7 +135,7 @@ require_once __DIR__ . "/includes/header.php";
         </div>
     <?php else: ?>
         <div class="empty-state" style="text-align: center; padding: 48px 20px; background: white; border-radius: 12px; border: 1px solid #e2e8f0;">
-            <div style="font-size: 48px; margin-bottom: 14px;">🏪</div>
+            <div style="font-size: 48px; margin-bottom: 14px;"></div>
             <h3 style="margin-bottom: 8px;">You Haven't Followed Any Vendors Yet</h3>
             <p style="color: #64748b; max-width: 500px; margin: 0 auto 20px;">
                 Following sellers boosts their surplus deals and tickets in your personalized recommendations feed. You can follow any vendor directly from their listing pages!

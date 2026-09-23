@@ -41,7 +41,28 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && $canSubmit) {
     require_csrf();
     $formData["seller_type"] = $_POST["seller_type"] ?? "";
     $formData["business_name"] = trim($_POST["business_name"] ?? "");
-    $formData["verification_document"] = trim($_POST["verification_document"] ?? "");
+    
+    // Handle file upload
+    $formData["verification_document"] = $existingProfile["verification_document"] ?? "";
+    if (isset($_FILES["verification_document"]) && $_FILES["verification_document"]["error"] === UPLOAD_ERR_OK) {
+        $uploadDir = __DIR__ . '/assets/uploads/verification/';
+        $fileExt = strtolower(pathinfo($_FILES["verification_document"]["name"], PATHINFO_EXTENSION));
+        $allowedExts = ['jpg', 'jpeg', 'png', 'pdf'];
+        
+        if (!in_array($fileExt, $allowedExts)) {
+            $errors[] = "Invalid file type. Only JPG, PNG, and PDF are allowed.";
+        } else {
+            $fileName = uniqid('id_') . '.' . $fileExt;
+            $uploadFile = $uploadDir . $fileName;
+            if (move_uploaded_file($_FILES["verification_document"]["tmp_name"], $uploadFile)) {
+                $formData["verification_document"] = 'assets/uploads/verification/' . $fileName;
+            } else {
+                $errors[] = "Failed to upload the verification document.";
+            }
+        }
+    } else if (empty($formData["verification_document"])) {
+        $errors[] = "Verification document (Photo ID) is required.";
+    }
 
     if (!in_array($formData["seller_type"], $allowedTypes, true)) {
         $errors[] = "Please select a valid seller type.";
@@ -139,7 +160,7 @@ require_once __DIR__ . "/includes/header.php";
         <?php if ($existingProfile && $existingProfile["verification_status"] === "approved"): ?>
             <!-- State 1: Already Approved -->
             <div class="status-card" style="border-left: 4px solid #10b981; padding: 1.75rem; background: var(--bg-card); border-radius: 12px; text-align: center;">
-                <div style="font-size: 2.5rem; margin-bottom: 0.75rem;">🎉</div>
+                <div style="font-size: 2.5rem; margin-bottom: 0.75rem; color: #10b981; display:flex; justify-content:center;"></div>
                 <h2 style="font-size: 1.35rem; margin-bottom: 0.5rem;">You are a Verified Seller</h2>
                 <p style="color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.95rem;">
                     Your account is approved as a verified <strong><?= e(sellerTypeLabel($existingProfile["seller_type"])) ?></strong> (<?= e($existingProfile["business_name"]) ?>).
@@ -153,7 +174,7 @@ require_once __DIR__ . "/includes/header.php";
             <!-- State 2: Under Review -->
             <div class="status-card" style="border-left: 4px solid #f59e0b; padding: 1.75rem; background: var(--bg-card); border-radius: 12px;">
                 <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;">
-                    <div style="font-size: 1.8rem;">⏳</div>
+                    <div style="color: #f59e0b; display:flex;"></div>
                     <div>
                         <h2 style="font-size: 1.25rem; margin: 0;">Application Under Review</h2>
                         <span class="user-badge pending" style="display: inline-block; margin-top: 4px;">Pending Verification</span>
@@ -164,8 +185,8 @@ require_once __DIR__ . "/includes/header.php";
                     Your application for <strong><?= e($existingProfile["business_name"]) ?></strong> (<?= e(sellerTypeLabel($existingProfile["seller_type"])) ?>) is currently queued for administrator verification.
                 </p>
 
-                <div style="font-size: 0.85rem; background: rgba(245, 158, 11, 0.1); color: #b45309; padding: 0.75rem 1rem; border-radius: 8px; border: 1px solid rgba(245, 158, 11, 0.2);">
-                    🛡️ Verification typically completes within 24 hours. You will receive listing permissions immediately upon approval.
+                <div style="font-size: 0.85rem; background: rgba(245, 158, 11, 0.1); color: #b45309; padding: 0.75rem 1rem; border-radius: 8px; border: 1px solid rgba(245, 158, 11, 0.2); display:flex; align-items:center; gap:6px;">
+                     Verification typically completes within 24 hours. You will receive listing permissions immediately upon approval.
                 </div>
             </div>
 
@@ -174,7 +195,7 @@ require_once __DIR__ . "/includes/header.php";
             <?php if ($existingProfile && $existingProfile["verification_status"] === "rejected"): ?>
                 <div class="alert alert-error" style="margin-bottom: 1.75rem; border-left: 4px solid #ef4444; padding: 1.25rem; border-radius: 8px;">
                     <div style="font-weight: 700; font-size: 1rem; margin-bottom: 0.4rem; display: flex; align-items: center; gap: 6px;">
-                        <span>⚠️</span> Application Not Approved
+                         Application Not Approved
                     </div>
                     <p style="font-size: 0.9rem; margin-bottom: 0.5rem; color: #7f1d1d;">
                         An administrator reviewed your previous application and left the following feedback:
@@ -188,20 +209,20 @@ require_once __DIR__ . "/includes/header.php";
                 </div>
             <?php endif; ?>
 
-            <form method="POST" action="seller_apply.php">
+            <form method="POST" action="seller_apply.php" enctype="multipart/form-data">
                 <?= csrf_field() ?>
                 <div class="form-group">
                     <label for="seller_type">Seller Category *</label>
                     <select id="seller_type" name="seller_type" required>
                         <option value="">Select your business category</option>
                         <option value="food_business" <?= $formData["seller_type"] === "food_business" ? "selected" : "" ?>>
-                            🍽️ Food Business (Restaurant, Bakery, Cafe)
+                            Food Business (Restaurant, Bakery, Cafe)
                         </option>
                         <option value="event_organizer" <?= $formData["seller_type"] === "event_organizer" ? "selected" : "" ?>>
-                            🎭 Event Organizer (Festivals, Concerts, Theaters)
+                            Event Organizer (Festivals, Concerts, Theaters)
                         </option>
                         <option value="individual_ticket_seller" <?= $formData["seller_type"] === "individual_ticket_seller" ? "selected" : "" ?>>
-                            🎟️ Individual Ticket Reseller
+                            Individual Ticket Reseller
                         </option>
                     </select>
                 </div>
@@ -220,15 +241,20 @@ require_once __DIR__ . "/includes/header.php";
 
                 <div class="form-group">
                     <label for="verification_document">
-                        Verification Reference (Trade License, NID, or Org URL)
+                        Verification Photo ID (TIN, NID, Trade License, Driving License) *
                     </label>
                     <input
-                        type="text"
+                        type="file"
                         id="verification_document"
                         name="verification_document"
-                        placeholder="e.g. Trade License #TRAD-2026-9921 or National ID"
-                        value="<?= e($formData["verification_document"]) ?>"
+                        accept="image/jpeg, image/png, application/pdf"
+                        <?= empty($formData["verification_document"]) ? 'required' : '' ?>
                     >
+                    <?php if (!empty($formData["verification_document"])): ?>
+                        <div style="margin-top: 8px; font-size: 0.85rem; color: var(--text-muted); display:flex; align-items:center; gap:6px;">
+                             Current document uploaded. Upload a new one to replace it.
+                        </div>
+                    <?php endif; ?>
                     <small style="color: var(--text-muted); font-size: 0.78rem; display: block; margin-top: 4px;">
                         Providing authentic verification credentials speeds up your account approval.
                     </small>

@@ -125,7 +125,7 @@ function require_csrf(): void {
             </head>
             <body>
                 <div class="card">
-                    <div class="icon">🛡️</div>
+                    <div class="icon">️</div>
                     <h1>Security Token Error</h1>
                     <p>Your request could not be authenticated due to an invalid or expired CSRF security token. Please refresh the page and submit again.</p>
                     <a href="javascript:history.back()" class="btn">&larr; Return to Previous Page</a>

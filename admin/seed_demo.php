@@ -384,7 +384,7 @@ require_once __DIR__ . "/../includes/header.php";
 
 <main class="container">
     <div class="section-heading">
-        <h2>⚡ Faculty Demo Listing Generator</h2>
+        <h2>Faculty Demo Listing Generator</h2>
         <p>Populate the LastCall marketplace with high-quality surplus food deals and verified event tickets for presentations.</p>
     </div>
 
@@ -397,7 +397,7 @@ require_once __DIR__ . "/../includes/header.php";
 
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 24px; margin-bottom: 36px;">
         <div class="card" style="padding: 24px; border: 1px solid var(--border-subtle); background: white; border-radius: var(--radius-lg);">
-            <div style="font-size: 32px; margin-bottom: 12px;">🍽️ + 🎟️</div>
+            <div style="font-size: 32px; margin-bottom: 12px;">️ + ️</div>
             <h3 style="font-size: 18px; font-weight: 800; color: var(--brand-navy); margin-bottom: 8px;">Seed 11 Live Demo Listings</h3>
             <p style="font-size: 14px; color: var(--text-secondary); margin-bottom: 20px; line-height: 1.5;">
                 Generates 6 realistic surplus food items (Biryani, Sourdough box, Bento, Cold-pressed juice, Pastries) and 5 verified event tickets (Indie Music Fest, Tech Summit, Comedy Gala) with dynamic discounts and upcoming deadlines.
@@ -406,13 +406,13 @@ require_once __DIR__ . "/../includes/header.php";
                 <?= csrf_field() ?>
                 <input type="hidden" name="action" value="seed">
                 <button type="submit" class="primary-button" style="background: linear-gradient(135deg, var(--brand-coral) 0%, #dc3c41 100%);">
-                    ⚡ Generate Demo Listings Now
+                    Generate Demo Listings Now
                 </button>
             </form>
         </div>
 
         <div class="card" style="padding: 24px; border: 1px solid var(--border-subtle); background: white; border-radius: var(--radius-lg);">
-            <div style="font-size: 32px; margin-bottom: 12px;">🧹</div>
+            <div style="font-size: 32px; margin-bottom: 12px;"></div>
             <h3 style="font-size: 18px; font-weight: 800; color: var(--brand-navy); margin-bottom: 8px;">Clear Demo Listings</h3>
             <p style="font-size: 14px; color: var(--text-secondary); margin-bottom: 20px; line-height: 1.5;">
                 Removes all previously generated demo listings from the marketplace so you can show faculty an empty state or restart the demonstration cleanly.
@@ -421,7 +421,7 @@ require_once __DIR__ . "/../includes/header.php";
                 <?= csrf_field() ?>
                 <input type="hidden" name="action" value="clear">
                 <button type="submit" class="primary-button" style="background: #475569;" onclick="return confirm('Clear all demo listings?');">
-                    🗑️ Clear Demo Listings
+                    ️ Clear Demo Listings
                 </button>
             </form>
         </div>

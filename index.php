@@ -147,17 +147,17 @@ $pageTitle = "LastCall | Last Minute Marketplace";
 require_once __DIR__ . "/includes/header.php";
 ?>
 
-<section class="hero">
-    <div class="hero-pill">⏳ Hyper-Local Last-Minute Marketplace</div>
-    <h1>Rescue Surplus Meals &amp; Event Tickets <span class="gradient-text">Before Time Runs Out.</span></h1>
-    <p class="hero-subtitle">
+<section class="hero" style="padding: 1.5rem 1rem; min-height: auto; margin-bottom: 1.5rem;">
+    <div class="hero-pill" style="margin-bottom: 0.5rem; font-size: 0.8rem; padding: 4px 10px;">Hyper-Local Last-Minute Marketplace</div>
+    <h1 style="font-size: 2.2rem; line-height: 1.1; margin-bottom: 0.75rem;">Rescue Surplus Meals &amp; Event Tickets <br><span class="gradient-text">Before Time Runs Out.</span></h1>
+    <p class="hero-subtitle" style="font-size: 1rem; max-width: 600px; margin-bottom: 1.25rem;">
         High-quality food from local kitchens and verified event tickets at up to 70% discount — while fighting waste in your neighborhood.
     </p>
     <div class="hero-quick-filters">
-        <a href="index.php" class="hero-pill-btn <?= empty($listingType) ? 'active' : '' ?>">🔥 All Deals</a>
-        <a href="index.php?type=food" class="hero-pill-btn <?= $listingType === 'food' ? 'active' : '' ?>">🍽️ Food Rescue</a>
-        <a href="index.php?type=ticket" class="hero-pill-btn <?= $listingType === 'ticket' ? 'active' : '' ?>">🎟️ Event Tickets</a>
-        <a href="#last-chance" class="hero-pill-btn expiring">⚡ Expiring Soon</a>
+        <a href="index.php" class="hero-pill-btn <?= empty($listingType) ? 'active' : '' ?>" style="display:inline-flex; align-items:center; gap:6px;">All Deals</a>
+        <a href="index.php?type=food" class="hero-pill-btn <?= $listingType === 'food' ? 'active' : '' ?>" style="display:inline-flex; align-items:center; gap:6px;">Food Rescue</a>
+        <a href="index.php?type=ticket" class="hero-pill-btn <?= $listingType === 'ticket' ? 'active' : '' ?>" style="display:inline-flex; align-items:center; gap:6px;">Event Tickets</a>
+        <a href="#last-chance" class="hero-pill-btn expiring" style="display:inline-flex; align-items:center; gap:6px;">Expiring Soon</a>
     </div>
 </section>
 
@@ -173,73 +173,25 @@ require_once __DIR__ . "/includes/header.php";
                     <?= csrf_field() ?>
                     <input type="hidden" name="action" value="seed">
                     <input type="hidden" name="return_to" value="index.php">
-                    <button type="submit" class="btn-demo-action seed-btn" title="Add 11 curated demo listings">⚡ Seed Demo Listings</button>
+                    <button type="submit" class="btn-demo-action seed-btn" title="Add 11 curated demo listings" style="display:inline-flex; align-items:center; gap:6px;"> Seed Demo Listings</button>
                 </form>
                 <form action="admin/seed_demo.php" method="POST" style="display:inline; margin:0;" onsubmit="return confirm('Clear all generated demo listings from marketplace?');">
                     <?= csrf_field() ?>
                     <input type="hidden" name="action" value="clear">
                     <input type="hidden" name="return_to" value="index.php">
-                    <button type="submit" class="btn-demo-action clear-btn" title="Clear demo items to show empty state">🧹 Clear Demo Data</button>
+                    <button type="submit" class="btn-demo-action clear-btn" title="Clear demo items to show empty state" style="display:inline-flex; align-items:center; gap:6px;"> Clear Demo Data</button>
                 </form>
-                <a href="admin/seed_demo.php" class="btn-demo-action studio-btn">🛠️ Data Studio</a>
+                <a href="admin/seed_demo.php" class="btn-demo-action studio-btn" style="display:inline-flex; align-items:center; gap:6px;"> Data Studio</a>
             </div>
         </div>
     <?php endif; ?>
 
-    <form method="get" class="filter-form">
-        <input name="q" value="<?= e($search) ?>" placeholder="Search deals">
-        <select name="type">
-            <option value="">All types</option>
-            <option value="food" <?= $listingType === "food" ? "selected" : "" ?>>Food</option>
-            <option value="ticket" <?= $listingType === "ticket" ? "selected" : "" ?>>Tickets</option>
-        </select>
-        <select name="category">
-            <option value="">All categories</option>
-            <?php foreach (["meal", "bakery", "beverage", "snack", "other"] as $cat): ?>
-                <option value="<?= $cat ?>" <?= $foodCategory === $cat ? "selected" : "" ?>><?= ucfirst($cat) ?></option>
-            <?php endforeach; ?>
-        </select>
-        <select name="city">
-            <option value="">All cities</option>
-            <?php foreach ($allCities as $c): ?>
-                <option value="<?= e($c) ?>" <?= $city === $c ? "selected" : "" ?>><?= e($c) ?></option>
-            <?php endforeach; ?>
-        </select>
-        <select name="area">
-            <option value="">All areas</option>
-            <?php foreach ($allAreas as $a): ?>
-                <option value="<?= e($a) ?>" <?= $area === $a ? "selected" : "" ?>><?= e($a) ?></option>
-            <?php endforeach; ?>
-        </select>
-        <div class="filter-group">
-            <label>৳ Min</label>
-            <input name="min_price" type="number" step="0.01" min="0" value="<?= e($minPrice) ?>" placeholder="0" style="width:80px">
-        </div>
-        <div class="filter-group">
-            <label>৳ Max</label>
-            <input name="max_price" type="number" step="0.01" min="0" value="<?= e($maxPrice) ?>" placeholder="∞" style="width:80px">
-        </div>
-        <select name="min_discount">
-            <option value="">Any discount</option>
-            <option value="10" <?= $minDiscount === "10" ? "selected" : "" ?>>≥ 10%</option>
-            <option value="25" <?= $minDiscount === "25" ? "selected" : "" ?>>≥ 25%</option>
-            <option value="40" <?= $minDiscount === "40" ? "selected" : "" ?>>≥ 40%</option>
-            <option value="50" <?= $minDiscount === "50" ? "selected" : "" ?>>≥ 50%</option>
-        </select>
-        <select name="sort">
-            <option value="deadline" <?= $sortBy === "deadline" ? "selected" : "" ?>>Ending soonest</option>
-            <option value="price_low" <?= $sortBy === "price_low" ? "selected" : "" ?>>Price: Low → High</option>
-            <option value="price_high" <?= $sortBy === "price_high" ? "selected" : "" ?>>Price: High → Low</option>
-            <option value="discount" <?= $sortBy === "discount" ? "selected" : "" ?>>Biggest discount</option>
-        </select>
-        <button type="submit">Search</button>
-        <?php if ($hasActiveFilters): ?><a href="index.php">Clear</a><?php endif; ?>
-    </form>
+    <!-- Filter form removed to declutter UI -->
 
     <?php if (count($lastChanceListings) > 0): ?>
         <div class="urgency-section" id="last-chance">
             <div class="section-heading">
-                <h2>⏰ Last Chance <span class="urgency-badge">EXPIRING SOON</span></h2>
+                <h2 style="display:flex; align-items:center; gap:8px; justify-content:center;"> Last Chance <span class="urgency-badge">EXPIRING SOON</span></h2>
                 <p>These deals expire within the next hour — grab them now!</p>
             </div>
             <div class="listing-grid">
@@ -257,10 +209,10 @@ require_once __DIR__ . "/includes/header.php";
                         </span>
                         <h3><?= e($listing["title"]) ?></h3>
                         <p class="description"><?= e($listing["description"] ?? "No description available.") ?></p>
-                        <p class="location">📍 <?= e($listing["area"]) ?>, <?= e($listing["city"]) ?></p>
-                        <p class="meta" style="color:#dc3545;font-weight:bold">🔥 <?= e($timeLeft) ?></p>
+                        <p class="location" style="display:flex; align-items:center; gap:4px;"> <?= e($listing["area"]) ?>, <?= e($listing["city"]) ?></p>
+                        <p class="meta" style="color:#dc3545;font-weight:bold; display:flex; align-items:center; gap:4px;"> <?= e($timeLeft) ?></p>
                         <?php if ($isFood && isset($listing["quantity_available"])): ?>
-                            <p class="meta">🍽 <?= (int) $listing["quantity_available"] ?> available</p>
+                            <p class="meta" style="display:flex; align-items:center; gap:4px;"> <?= (int) $listing["quantity_available"] ?> available</p>
                         <?php endif; ?>
                         <div class="price-row">
                             <?php if ($discount > 0): ?>
@@ -303,10 +255,10 @@ require_once __DIR__ . "/includes/header.php";
                     </span>
                     <h3><?= e($listing["title"]) ?></h3>
                     <p class="description"><?= e($listing["description"] ?? "No description available.") ?></p>
-                    <p class="location">📍 <?= e($listing["area"]) ?>, <?= e($listing["city"]) ?></p>
-                    <p class="meta">⏰ <?= e($timeLeft) ?></p>
+                    <p class="location" style="display:flex; align-items:center; gap:4px;"> <?= e($listing["area"]) ?>, <?= e($listing["city"]) ?></p>
+                    <p class="meta" style="display:flex; align-items:center; gap:4px;"> <?= e($timeLeft) ?></p>
                     <?php if ($isFood && isset($listing["quantity_available"])): ?>
-                        <p class="meta">🍽 <?= (int) $listing["quantity_available"] ?> available</p>
+                        <p class="meta" style="display:flex; align-items:center; gap:4px;"> <?= (int) $listing["quantity_available"] ?> available</p>
                     <?php endif; ?>
                     <div class="price-row">
                         <?php if ($discount > 0): ?>

@@ -177,7 +177,16 @@ require_once __DIR__ . "/../includes/header.php";
 
                         <td><?= e($seller["business_name"] ?? "-") ?></td>
 
-                        <td><?= e($seller["verification_document"] ?? "-") ?></td>
+                        <td>
+                            <?php if (!empty($seller["verification_document"])): ?>
+                                <?php $docUrl = '../' . ltrim($seller["verification_document"], '/'); ?>
+                                <a href="<?= e($docUrl) ?>" target="_blank" style="display: inline-flex; align-items: center; gap: 4px; color: #3b82f6; text-decoration: none; font-size: 0.85rem; padding: 4px 8px; background: #eff6ff; border-radius: 4px; border: 1px solid #bfdbfe; transition: background 0.2s;" onmouseover="this.style.background='#dbeafe'" onmouseout="this.style.background='#eff6ff'">
+                                     View Document
+                                </a>
+                            <?php else: ?>
+                                <span style="color: #94a3b8; font-size: 0.85rem; font-style: italic;">No document</span>
+                            <?php endif; ?>
+                        </td>
 
                         <td>
                             <span class="status <?= e($seller["verification_status"]) ?>">
@@ -192,19 +201,24 @@ require_once __DIR__ . "/../includes/header.php";
 
                         <td>
                             <?php if ($seller["verification_status"] === "pending"): ?>
-                                <form method="POST" class="action-form" style="display:flex; flex-direction:column; gap:6px;">
+                                <form method="POST" class="action-form" style="display:flex; flex-direction:column; gap:8px; width: 100%;">
                                     <?= csrf_field() ?>
                                     <input
                                         type="hidden"
                                         name="seller_profile_id"
                                         value="<?= (int) $seller["seller_profile_id"] ?>">
 
-                                    <input 
-                                        type="text" 
-                                        name="rejection_reason" 
-                                        placeholder="Reason if rejecting..." 
-                                        style="font-size:0.75rem; padding:4px 7px; border:1px solid var(--border-color, #cbd5e1); border-radius:6px; width:100%; min-width:140px;"
-                                    >
+                                    <div style="position: relative;">
+                                        
+                                        <input 
+                                            type="text" 
+                                            name="rejection_reason" 
+                                            placeholder="Reason if rejecting..." 
+                                            style="font-size:0.8rem; padding:6px 8px 6px 28px; border:1px solid #e2e8f0; border-radius:6px; width:100%; min-width:140px; outline: none; transition: border-color 0.2s;"
+                                            onfocus="this.style.borderColor='#3b82f6'"
+                                            onblur="this.style.borderColor='#e2e8f0'"
+                                        >
+                                    </div>
 
                                     <div style="display:flex; gap:6px;">
                                         <button
@@ -212,8 +226,11 @@ require_once __DIR__ . "/../includes/header.php";
                                             name="action"
                                             value="approve"
                                             class="approve-button"
-                                            style="flex:1;">
-                                            Approve
+                                            style="flex:1; display:flex; align-items:center; justify-content:center; gap:4px; padding: 6px 10px; background-color: #10b981; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 500; transition: background-color 0.2s;"
+                                            onmouseover="this.style.backgroundColor='#059669'"
+                                            onmouseout="this.style.backgroundColor='#10b981'"
+                                        >
+                                             Approve
                                         </button>
 
                                         <button
@@ -221,9 +238,12 @@ require_once __DIR__ . "/../includes/header.php";
                                             name="action"
                                             value="reject"
                                             class="reject-button"
-                                            style="flex:1;"
-                                            onclick="return confirmReject(this.form)">
-                                            Reject
+                                            style="flex:1; display:flex; align-items:center; justify-content:center; gap:4px; padding: 6px 10px; background-color: #ef4444; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 500; transition: background-color 0.2s;"
+                                            onclick="return confirmReject(this.form)"
+                                            onmouseover="this.style.backgroundColor='#dc2626'"
+                                            onmouseout="this.style.backgroundColor='#ef4444'"
+                                        >
+                                             Reject
                                         </button>
                                     </div>
                                 </form>

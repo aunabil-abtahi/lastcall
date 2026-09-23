@@ -27,7 +27,7 @@ $sellerStats = $statsStmt->fetch(PDO::FETCH_ASSOC) ?: [
 $totalReviews = (int) $sellerStats["review_count"];
 $averageRating = (float) $sellerStats["average_rating"];
 
-// Calculate star breakdown (5★ down to 1★)
+// Calculate star breakdown (5down to 1)
 $distStmt = $pdo->prepare("
     SELECT rating, COUNT(*) AS count
     FROM reviews
@@ -69,7 +69,7 @@ require_once __DIR__ . "/../includes/header.php";
     <div class="section-heading">
         <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px;">
             <div>
-                <h2>⭐ Customer Reviews &amp; Reputation</h2>
+                <h2>Customer Reviews &amp; Reputation</h2>
                 <p>Track customer satisfaction and verified feedback on your surplus food and tickets.</p>
             </div>
             <div>
@@ -89,7 +89,7 @@ require_once __DIR__ . "/../includes/header.php";
             <div class="stars-row">
                 <?php
                     $roundStars = (int) round($averageRating);
-                    echo str_repeat("★", $roundStars) . str_repeat("☆", 5 - $roundStars);
+                    echo str_repeat("", $roundStars) . str_repeat("", 5 - $roundStars);
                 ?>
             </div>
             <div class="rating-total-reviews">
@@ -104,7 +104,7 @@ require_once __DIR__ . "/../includes/header.php";
                     $percent = $totalReviews > 0 ? round(($count / $totalReviews) * 100) : 0;
                 ?>
                 <div class="rating-bar-row">
-                    <span class="rating-bar-label"><?= $star ?> ★</span>
+                    <span class="rating-bar-label"><?= $star ?> </span>
                     <div class="rating-bar-track">
                         <div class="rating-bar-fill" style="width: <?= $percent ?>%;"></div>
                     </div>
@@ -130,7 +130,7 @@ require_once __DIR__ . "/../includes/header.php";
                             <div class="review-stars-gold">
                                 <?php
                                     $r = (int) $review["rating"];
-                                    echo str_repeat("★", $r) . str_repeat("☆", 5 - $r);
+                                    echo str_repeat("", $r) . str_repeat("", 5 - $r);
                                 ?>
                             </div>
                             <span class="review-date-badge">
@@ -143,11 +143,11 @@ require_once __DIR__ . "/../includes/header.php";
                     </div>
                     <div class="review-author-meta">
                         <span class="review-buyer-name">
-                            👤 <?= e($review["buyer_name"]) ?>
+                            <?= e($review["buyer_name"]) ?>
                         </span>
                         <?php if (!empty($review["item_title"])): ?>
                             <span class="review-item-name" title="<?= e($review["item_title"]) ?>">
-                                📦 <?= e($review["item_title"]) ?>
+                                <?= e($review["item_title"]) ?>
                             </span>
                         <?php endif; ?>
                     </div>
@@ -156,7 +156,7 @@ require_once __DIR__ . "/../includes/header.php";
         </div>
     <?php else: ?>
         <div class="review-empty-state">
-            <div class="empty-icon">🌟</div>
+            <div class="empty-icon"></div>
             <h3 style="color: var(--brand-navy); margin-bottom: 6px;">No Customer Reviews Yet</h3>
             <p>Customer reviews will automatically appear here once buyers complete their orders and share feedback.</p>
         </div>
