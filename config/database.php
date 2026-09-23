@@ -41,12 +41,33 @@ $env = lastCallEnv();
 // Support Railway MYSQL_URL connection string if present
 $dbUrl = $env["MYSQL_URL"] ?? null;
 if (!empty($dbUrl)) {
-    $parsedUrl = parse_url($dbUrl);
-    $host = $parsedUrl["host"] ?? "localhost";
-    $port = $parsedUrl["port"] ?? "3306";
-    $username = $parsedUrl["user"] ?? "root";
-    $password = $parsedUrl["pass"] ?? "";
-    $dbname = ltrim($parsedUrl["path"] ?? "/lastcall", "/");
+    $urlWithoutScheme = str_replace(['mysql://', 'postgresql://'], '', $dbUrl);
+    $lastAt = strrpos($urlWithoutScheme, '@');
+    
+    if ($lastAt !== false) {
+        $credentials = substr($urlWithoutScheme, 0, $lastAt);
+        $serverInfo = substr($urlWithoutScheme, $lastAt + 1);
+        
+        $credParts = explode(':', $credentials, 2);
+        $username = $credParts[0];
+        $password = $credParts[1] ?? '';
+        
+        $serverParts = explode('/', $serverInfo);
+        $hostPort = $serverParts[0];
+        $dbname = $serverParts[1] ?? 'lastcall';
+        
+        $hpParts = explode(':', $hostPort);
+        $host = $hpParts[0];
+        $port = $hpParts[1] ?? '3306';
+    } else {
+        // Fallback to parse_url if it's a weird format without @
+        $parsedUrl = parse_url($dbUrl);
+        $host = $parsedUrl["host"] ?? "localhost";
+        $port = $parsedUrl["port"] ?? "3306";
+        $username = $parsedUrl["user"] ?? "root";
+        $password = $parsedUrl["pass"] ?? "";
+        $dbname = ltrim($parsedUrl["path"] ?? "/lastcall", "/");
+    }
 } else {
     $host = $env["DB_HOST"] ?? $env["MYSQLHOST"] ?? "localhost";
     $port = $env["DB_PORT"] ?? $env["MYSQLPORT"] ?? "3306";
@@ -65,5 +86,5 @@ try {
     $pdo->exec("SET time_zone = '+06:00';");
 } catch (PDOException $e) {
     error_log("Database connection failed: " . $e->getMessage());
-    die("A database connection error occurred. Please check that MySQL is running.");
+    die("A database connection error occurred: " . $e->getMessage());
 }
