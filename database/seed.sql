@@ -18,7 +18,7 @@ INSERT INTO users (
     'LastCall Admin',
     'admin@lastcall.test',
     '01700000001',
-    '$2y$10$81RrDyfa9P6YXqtqIT1UHumI26WjAptIFsiX9Lqcv0BFRXObEc0o2',
+    '$2y$10$i2lLInC1YXP6KePfJhFw2u0lLOJ1gwoxl.rbj.eAZcJ8DV3YGqjiG',
     'admin',
     1,
     1,
