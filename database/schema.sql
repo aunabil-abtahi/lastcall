@@ -512,3 +512,53 @@ FROM reviews r
 JOIN users u ON u.user_id = r.buyer_id
 JOIN seller_profiles sp ON sp.user_id = r.seller_id
 JOIN order_items oi ON oi.order_id = r.order_id;
+
+-- 19. Audit Logs Table (Advanced DBMS tracking)
+CREATE TABLE audit_logs (
+    log_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    table_name VARCHAR(50) NOT NULL,
+    record_id INT UNSIGNED NOT NULL,
+    action ENUM('INSERT', 'UPDATE', 'DELETE') NOT NULL,
+    old_data JSON NULL,
+    new_data JSON NULL,
+    changed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_audit_table (table_name, record_id)
+) ENGINE=InnoDB;
+
+-- 20. Triggers for Audit Logs
+DELIMITER //
+
+CREATE TRIGGER after_listings_update
+AFTER UPDATE ON listings
+FOR EACH ROW
+BEGIN
+    IF OLD.listing_status != NEW.listing_status OR OLD.original_price != NEW.original_price THEN
+        INSERT INTO audit_logs (table_name, record_id, action, old_data, new_data)
+        VALUES (
+            'listings', 
+            NEW.listing_id, 
+            'UPDATE', 
+            JSON_OBJECT('listing_status', OLD.listing_status, 'original_price', OLD.original_price),
+            JSON_OBJECT('listing_status', NEW.listing_status, 'original_price', NEW.original_price)
+        );
+    END IF;
+END//
+
+CREATE TRIGGER after_tickets_update
+AFTER UPDATE ON tickets
+FOR EACH ROW
+BEGIN
+    IF OLD.availability_status != NEW.availability_status OR OLD.verification_status != NEW.verification_status THEN
+        INSERT INTO audit_logs (table_name, record_id, action, old_data, new_data)
+        VALUES (
+            'tickets', 
+            NEW.ticket_id, 
+            'UPDATE', 
+            JSON_OBJECT('availability_status', OLD.availability_status, 'verification_status', OLD.verification_status),
+            JSON_OBJECT('availability_status', NEW.availability_status, 'verification_status', NEW.verification_status)
+        );
+    END IF;
+END//
+
+DELIMITER ;
+
