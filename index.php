@@ -79,6 +79,7 @@ $sql = "
         l.description,
         l.original_price,
         l.pickup_or_event_deadline,
+        l.image_url,
         loc.city,
         loc.area,
         f.quantity_available,
@@ -205,6 +206,9 @@ require_once __DIR__ . "/includes/header.php";
                         $timeLeft = $listing["minutes_left"] . " minutes left";
                     ?>
                     <article class="card">
+                        <?php if (!empty($listing["image_url"])): ?>
+                            <img src="<?= e($listing["image_url"]) ?>" alt="<?= e($listing["title"]) ?>" style="width: 100%; height: 180px; object-fit: cover; border-top-left-radius: var(--radius-lg); border-top-right-radius: var(--radius-lg); margin-bottom: 0.5rem; display: block;">
+                        <?php endif; ?>
                         <span class="badge <?= $isFood ? "" : "ticket" ?>">
                             <?= $isFood ? "Food Rescue" : "Event Ticket" ?>
                         </span>
@@ -251,6 +255,9 @@ require_once __DIR__ . "/includes/header.php";
                     }
                 ?>
                 <article class="card">
+                    <?php if (!empty($listing["image_url"])): ?>
+                        <img src="<?= e($listing["image_url"]) ?>" alt="<?= e($listing["title"]) ?>" style="width: 100%; height: 180px; object-fit: cover; border-top-left-radius: var(--radius-lg); border-top-right-radius: var(--radius-lg); margin-bottom: 0.5rem; display: block;">
+                    <?php endif; ?>
                     <span class="badge <?= $isFood ? "" : "ticket" ?>">
                         <?= $isFood ? "Food Rescue" : "Event Ticket" ?>
                     </span>

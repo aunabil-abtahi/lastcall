@@ -96,7 +96,7 @@ INSERT INTO events (
 
 -- Food listing
 INSERT INTO listings (
-    seller_id, location_id, listing_type, title, description,
+    seller_id, location_id, listing_type, title, description, image_url,
     original_price, pickup_or_event_deadline, listing_status
 ) VALUES
 (
@@ -105,6 +105,7 @@ INSERT INTO listings (
     'food',
     'Chicken Biryani Meal Box',
     'Fresh surplus chicken biryani meal box. Pickup only.',
+    'assets/uploads/listings/biryani_box.jpg',
     300.00,
     DATE_ADD(NOW(), INTERVAL 3 HOUR),
     'active'
@@ -141,7 +142,7 @@ INSERT INTO tickets (
 
 -- Ticket resale listing
 INSERT INTO listings (
-    seller_id, location_id, listing_type, title, description,
+    seller_id, location_id, listing_type, title, description, image_url,
     original_price, pickup_or_event_deadline, listing_status
 ) VALUES
 (
@@ -150,6 +151,7 @@ INSERT INTO listings (
     'ticket',
     'Dhaka Music Night Ticket',
     'Verified general-admission ticket for resale.',
+    'assets/uploads/listings/concert_ticket.jpg',
     900.00,
     DATE_ADD(NOW(), INTERVAL 20 HOUR),
     'active'

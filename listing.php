@@ -16,6 +16,7 @@ $listingQuery = $pdo->prepare("
         l.description,
         l.original_price,
         l.pickup_or_event_deadline,
+        l.image_url,
         loc.city,
         loc.area,
         f.food_category,
@@ -148,6 +149,9 @@ require_once __DIR__ . "/includes/header.php";
         <div class="detail-layout">
             <!-- Left Column: Main Listing Details -->
             <section class="detail-card">
+                <?php if (!empty($listing["image_url"])): ?>
+                    <img src="<?= e($listing["image_url"]) ?>" alt="<?= e($listing["title"]) ?>" style="width: 100%; max-height: 400px; object-fit: cover; border-radius: var(--radius-lg); margin-bottom: 1.5rem; display: block;">
+                <?php endif; ?>
                 <span class="badge <?= $isFood ? "" : "ticket" ?>">
                     <?= $isFood ? "️ Food Rescue" : "️ Event Ticket" ?>
                 </span>

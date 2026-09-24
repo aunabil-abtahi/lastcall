@@ -108,6 +108,35 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
 
     if (count($errors) === 0) {
+        if (!isset($_FILES['image']) || $_FILES['image']['error'] !== UPLOAD_ERR_OK) {
+            $errors[] = "Image upload is required and must be valid.";
+        } else {
+            $allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+            $fileInfo = finfo_open(FILEINFO_MIME_TYPE);
+            $mimeType = finfo_file($fileInfo, $_FILES['image']['tmp_name']);
+            finfo_close($fileInfo);
+
+            if (!in_array($mimeType, $allowedTypes, true)) {
+                $errors[] = "Only JPG, PNG, and WebP images are allowed.";
+            } else {
+                $extension = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
+                $newFilename = uniqid('listing_', true) . '.' . $extension;
+                $uploadDir = __DIR__ . "/../assets/uploads/listings/";
+                if (!is_dir($uploadDir)) {
+                    mkdir($uploadDir, 0777, true);
+                }
+                $uploadPath = $uploadDir . $newFilename;
+                
+                if (!move_uploaded_file($_FILES['image']['tmp_name'], $uploadPath)) {
+                    $errors[] = "Failed to upload image. Please try again.";
+                } else {
+                    $imageUrl = 'assets/uploads/listings/' . $newFilename;
+                }
+            }
+        }
+    }
+
+    if (count($errors) === 0) {
         try {
             $pdo->beginTransaction();
 
@@ -152,10 +181,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     listing_type,
                     title,
                     description,
+                    image_url,
                     original_price,
                     pickup_or_event_deadline,
                     listing_status
-                ) VALUES (?, ?, 'ticket', ?, ?, ?, ?, 'draft')
+                ) VALUES (?, ?, 'ticket', ?, ?, ?, ?, ?, 'draft')
             ");
 
             $insertListing->execute([
@@ -163,6 +193,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 $selectedEvent["location_id"],
                 $listingTitle,
                 $description,
+                $imageUrl,
                 $resalePrice,
                 $deadline
             ]);
@@ -221,7 +252,7 @@ require_once __DIR__ . "/../includes/header.php";
                 No upcoming events are currently available.
             </div>
         <?php else: ?>
-            <form method="POST" action="create_ticket_listing.php">
+            <form method="POST" action="create_ticket_listing.php" enctype="multipart/form-data">
                 <?= csrf_field() ?>
                 <div class="form-group">
                     <label for="event_id">Event</label>
@@ -315,6 +346,11 @@ require_once __DIR__ . "/../includes/header.php";
                         placeholder="Optional ticket details"
                         value="<?= e($formData["description"]) ?>"
                     >
+                </div>
+
+                <div class="form-group">
+                    <label for="image">Listing Image</label>
+                    <input type="file" id="image" name="image" accept="image/*" required>
                 </div>
 
                 <button type="submit" class="primary-button">

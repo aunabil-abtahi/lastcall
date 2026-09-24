@@ -66,11 +66,21 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" || isset($_GET["action"])) {
     if ($action === "clear") {
         try {
             $pdo->beginTransaction();
-            // Delete listings marked with [DEMO] in description or title
-            $pdo->exec("
-                DELETE FROM listings 
-                WHERE description LIKE '%[DEMO]%' OR title LIKE '%[DEMO]%'
-            ");
+            
+            $stmt = $pdo->query("SELECT listing_id FROM listings WHERE description LIKE '%[DEMO]%' OR title LIKE '%[DEMO]%'");
+            $ids = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+            if (!empty($ids)) {
+                $inQuery = implode(',', array_map('intval', $ids));
+                
+                // Clear dependencies to avoid foreign key constraint violations
+                $pdo->exec("DELETE FROM order_items WHERE listing_id IN ($inQuery)");
+                $pdo->exec("DELETE FROM reservations WHERE listing_id IN ($inQuery)");
+                
+                // Delete listings marked with [DEMO] in description or title
+                $pdo->exec("DELETE FROM listings WHERE listing_id IN ($inQuery)");
+            }
+            
             $pdo->commit();
             $_SESSION["flash_success"] = "All demo listings have been cleared from the marketplace.";
             header("Location: $returnTo");
@@ -85,10 +95,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" || isset($_GET["action"])) {
         try {
             $pdo->beginTransaction();
 
-            // 1. Select a seller account
-            $sellerId = $pdo->query("SELECT user_id FROM users WHERE role = 'seller' ORDER BY user_id ASC LIMIT 1")->fetchColumn();
-            if (!$sellerId) {
-                $sellerId = $_SESSION["user_id"]; // Fallback to current admin
+            // 1. Select seller accounts for food and tickets
+            $foodSellerId = $pdo->query("SELECT user_id FROM seller_profiles WHERE seller_type = 'food_business' ORDER BY user_id ASC LIMIT 1")->fetchColumn();
+            $ticketSellerId = $pdo->query("SELECT user_id FROM seller_profiles WHERE seller_type IN ('event_organizer', 'individual_ticket_seller') ORDER BY user_id ASC LIMIT 1")->fetchColumn();
+            
+            if (!$foodSellerId) {
+                $foodSellerId = $_SESSION["user_id"]; // Fallback
+            }
+            if (!$ticketSellerId) {
+                $ticketSellerId = $_SESSION["user_id"]; // Fallback
             }
 
             // 2. Select locations
@@ -107,6 +122,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" || isset($_GET["action"])) {
                     "location_id" => $dhanmondiId,
                     "minutes_left" => 42, // Triggers "Expiring Soon / Last Chance"!
                     "quantity" => 5,
+                    "image_url" => "assets/uploads/listings/sourdough_box.jpg",
                     "rules" => [
                         ["threshold" => 120, "discount" => 15.00],
                         ["threshold" => 60, "discount" => 30.00],
@@ -121,6 +137,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" || isset($_GET["action"])) {
                     "location_id" => $gulshanId,
                     "minutes_left" => 85,
                     "quantity" => 6,
+                    "image_url" => "assets/uploads/listings/biryani_feast.jpg",
                     "rules" => [
                         ["threshold" => 120, "discount" => 10.00],
                         ["threshold" => 60, "discount" => 25.00],
@@ -135,6 +152,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" || isset($_GET["action"])) {
                     "location_id" => $bananiId,
                     "minutes_left" => 140,
                     "quantity" => 4,
+                    "image_url" => "assets/uploads/listings/bento_set.jpg",
                     "rules" => [
                         ["threshold" => 180, "discount" => 15.00],
                         ["threshold" => 90, "discount" => 30.00],
@@ -149,6 +167,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" || isset($_GET["action"])) {
                     "location_id" => $dhanmondiId,
                     "minutes_left" => 190,
                     "quantity" => 8,
+                    "image_url" => "assets/uploads/listings/juice_trio.jpg",
                     "rules" => [
                         ["threshold" => 180, "discount" => 15.00],
                         ["threshold" => 60, "discount" => 30.00]
@@ -162,6 +181,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" || isset($_GET["action"])) {
                     "location_id" => $gulshanId,
                     "minutes_left" => 32, // Triggers "Expiring Soon / Last Chance"!
                     "quantity" => 3,
+                    "image_url" => "assets/uploads/listings/eclair_macaron.jpg",
                     "rules" => [
                         ["threshold" => 120, "discount" => 20.00],
                         ["threshold" => 60, "discount" => 40.00],
@@ -176,6 +196,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" || isset($_GET["action"])) {
                     "location_id" => $chittagongId,
                     "minutes_left" => 110,
                     "quantity" => 7,
+                    "image_url" => "assets/uploads/listings/bbq_chicken.jpg",
                     "rules" => [
                         ["threshold" => 120, "discount" => 15.00],
                         ["threshold" => 60, "discount" => 30.00],
@@ -185,8 +206,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" || isset($_GET["action"])) {
             ];
 
             $stmtInsertListing = $pdo->prepare("
-                INSERT INTO listings (seller_id, location_id, listing_type, title, description, original_price, pickup_or_event_deadline, listing_status)
-                VALUES (?, ?, 'food', ?, ?, ?, ?, 'active')
+                INSERT INTO listings (seller_id, location_id, listing_type, title, description, original_price, pickup_or_event_deadline, listing_status, image_url)
+                VALUES (?, ?, 'food', ?, ?, ?, ?, 'active', ?)
             ");
 
             $stmtInsertFood = $pdo->prepare("
@@ -204,12 +225,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" || isset($_GET["action"])) {
             foreach ($foodDeals as $item) {
                 $deadline = date("Y-m-d H:i:s", time() + ($item["minutes_left"] * 60));
                 $stmtInsertListing->execute([
-                    $sellerId,
+                    $foodSellerId,
                     $item["location_id"],
                     $item["title"],
                     $item["description"],
                     $item["price"],
-                    $deadline
+                    $deadline,
+                    $item["image_url"]
                 ]);
                 $listingId = (int) $pdo->lastInsertId();
 
@@ -242,6 +264,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" || isset($_GET["action"])) {
                     "title" => "Dhaka Indie Music Festival — General Admission Pass",
                     "description" => "[DEMO] Live performance by top alternative and indie fusion bands with outdoor food pavilions. Official ticket with verified entry barcode.",
                     "minutes_left" => 180,
+                    "image_url" => "assets/uploads/listings/indie_music_fest.jpg",
                     "rules" => [
                         ["threshold" => 240, "discount" => 15.00],
                         ["threshold" => 120, "discount" => 30.00],
@@ -258,6 +281,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" || isset($_GET["action"])) {
                     "title" => "National Tech & AI Summit — Full Day Delegate Pass",
                     "description" => "[DEMO] Access to keynote speeches, AI innovation showcases, tech networking lunch, and startup breakout sessions.",
                     "minutes_left" => 280,
+                    "image_url" => "assets/uploads/listings/tech_summit.jpg",
                     "rules" => [
                         ["threshold" => 300, "discount" => 20.00],
                         ["threshold" => 150, "discount" => 35.00]
@@ -273,6 +297,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" || isset($_GET["action"])) {
                     "title" => "All-Star Standup Comedy Gala — Front Zone A Ticket",
                     "description" => "[DEMO] 2 hours of non-stop comedy featuring national headliners. Front row Zone A seat with priority entry.",
                     "minutes_left" => 48, // Triggers "Expiring Soon / Last Chance"!
+                    "image_url" => "assets/uploads/listings/comedy_gala.jpg",
                     "rules" => [
                         ["threshold" => 120, "discount" => 25.00],
                         ["threshold" => 60, "discount" => 50.00],
@@ -289,6 +314,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" || isset($_GET["action"])) {
                     "title" => "Football Cup Semi-Final — VIP Grandstand Seat",
                     "description" => "[DEMO] Thrilling semi-final clash. Covered VIP grandstand ticket with excellent pitch view.",
                     "minutes_left" => 160,
+                    "image_url" => "assets/uploads/listings/football_cup.jpg",
                     "rules" => [
                         ["threshold" => 200, "discount" => 20.00],
                         ["threshold" => 90, "discount" => 35.00]
@@ -304,6 +330,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" || isset($_GET["action"])) {
                     "title" => "Sci-Fi Blockbuster Premiere — VIP Recliner & Popcorn",
                     "description" => "[DEMO] Exclusive opening night screening in Atmos 3D with luxury recliner seating and complimentary snack combo.",
                     "minutes_left" => 38, // Triggers "Expiring Soon / Last Chance"!
+                    "image_url" => "assets/uploads/listings/scifi_premiere.jpg",
                     "rules" => [
                         ["threshold" => 90, "discount" => 30.00],
                         ["threshold" => 45, "discount" => 50.00]
@@ -312,8 +339,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" || isset($_GET["action"])) {
             ];
 
             $stmtInsertTicketListing = $pdo->prepare("
-                INSERT INTO listings (seller_id, location_id, listing_type, title, description, original_price, pickup_or_event_deadline, listing_status)
-                VALUES (?, ?, 'ticket', ?, ?, ?, ?, 'active')
+                INSERT INTO listings (seller_id, location_id, listing_type, title, description, original_price, pickup_or_event_deadline, listing_status, image_url)
+                VALUES (?, ?, 'ticket', ?, ?, ?, ?, 'active', ?)
             ");
 
             $stmtInsertTicket = $pdo->prepare("
@@ -329,23 +356,24 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" || isset($_GET["action"])) {
             $ticketCount = 0;
             foreach ($ticketDeals as $tkt) {
                 $eventStart = date("Y-m-d H:i:s", time() + ($tkt["event_hours"] * 3600));
-                $eventId = getOrCreateEvent($pdo, $sellerId, $tkt["location_id"], $tkt["event_name"], $tkt["venue"], $eventStart);
+                $eventId = getOrCreateEvent($pdo, $ticketSellerId, $tkt["location_id"], $tkt["event_name"], $tkt["venue"], $eventStart);
 
                 $deadline = date("Y-m-d H:i:s", time() + ($tkt["minutes_left"] * 60));
                 $stmtInsertTicketListing->execute([
-                    $sellerId,
+                    $ticketSellerId,
                     $tkt["location_id"],
                     $tkt["title"],
                     $tkt["description"],
                     $tkt["price"],
-                    $deadline
+                    $deadline,
+                    $tkt["image_url"]
                 ]);
                 $listingId = (int) $pdo->lastInsertId();
 
                 $code = "TKT-" . strtoupper(bin2hex(random_bytes(4)));
                 $stmtInsertTicket->execute([
                     $eventId,
-                    $sellerId,
+                    $ticketSellerId,
                     $code,
                     $tkt["ticket_type"],
                     $tkt["price"]

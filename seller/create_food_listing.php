@@ -102,6 +102,35 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
 
     if (count($errors) === 0) {
+        if (!isset($_FILES['image']) || $_FILES['image']['error'] !== UPLOAD_ERR_OK) {
+            $errors[] = "Image upload is required and must be valid.";
+        } else {
+            $allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+            $fileInfo = finfo_open(FILEINFO_MIME_TYPE);
+            $mimeType = finfo_file($fileInfo, $_FILES['image']['tmp_name']);
+            finfo_close($fileInfo);
+
+            if (!in_array($mimeType, $allowedTypes, true)) {
+                $errors[] = "Only JPG, PNG, and WebP images are allowed.";
+            } else {
+                $extension = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
+                $newFilename = uniqid('listing_', true) . '.' . $extension;
+                $uploadDir = __DIR__ . "/../assets/uploads/listings/";
+                if (!is_dir($uploadDir)) {
+                    mkdir($uploadDir, 0777, true);
+                }
+                $uploadPath = $uploadDir . $newFilename;
+                
+                if (!move_uploaded_file($_FILES['image']['tmp_name'], $uploadPath)) {
+                    $errors[] = "Failed to upload image. Please try again.";
+                } else {
+                    $imageUrl = 'assets/uploads/listings/' . $newFilename;
+                }
+            }
+        }
+    }
+
+    if (count($errors) === 0) {
         try {
             $pdo->beginTransaction();
 
@@ -125,15 +154,16 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             $createListing = $pdo->prepare("
                 INSERT INTO listings (
-                    seller_id, location_id, listing_type, title, description,
+                    seller_id, location_id, listing_type, title, description, image_url,
                     original_price, pickup_or_event_deadline, listing_status
-                ) VALUES (?, ?, 'food', ?, ?, ?, ?, 'active')
+                ) VALUES (?, ?, 'food', ?, ?, ?, ?, ?, 'active')
             ");
             $createListing->execute([
                 $sellerId,
                 $locationId,
                 $formData["title"],
                 $formData["description"] ?: null,
+                $imageUrl,
                 $price,
                 $deadline
             ]);
@@ -195,7 +225,7 @@ require_once __DIR__ . "/../includes/header.php";
             </div>
         <?php endif; ?>
 
-        <form method="POST" action="create_food_listing.php">
+        <form method="POST" action="create_food_listing.php" enctype="multipart/form-data">
             <?= csrf_field() ?>
             <div class="form-group">
                 <label for="title">Listing Title</label>
@@ -205,6 +235,11 @@ require_once __DIR__ . "/../includes/header.php";
             <div class="form-group">
                 <label for="description">Description</label>
                 <textarea id="description" name="description" rows="3"><?= e($formData["description"]) ?></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="image">Listing Image</label>
+                <input type="file" id="image" name="image" accept="image/*" required>
             </div>
 
             <div class="form-row">

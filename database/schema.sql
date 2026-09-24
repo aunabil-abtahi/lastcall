@@ -100,6 +100,7 @@ CREATE TABLE listings (
     listing_type ENUM('food', 'ticket') NOT NULL,
     title VARCHAR(200) NOT NULL,
     description TEXT NULL,
+    image_url VARCHAR(255) NULL,
 
     original_price DECIMAL(10,2) NOT NULL,
     pickup_or_event_deadline DATETIME NOT NULL,
