@@ -381,6 +381,7 @@ CREATE TABLE reports (
     reporter_id INT UNSIGNED NOT NULL,
     reported_user_id INT UNSIGNED NULL,
     listing_id INT UNSIGNED NULL,
+    post_id INT UNSIGNED NULL,
 
     report_reason VARCHAR(255) NOT NULL,
     report_status ENUM('open', 'reviewing', 'resolved', 'dismissed')
@@ -400,6 +401,10 @@ CREATE TABLE reports (
 
     CONSTRAINT fk_report_listing
         FOREIGN KEY (listing_id) REFERENCES listings(listing_id)
+        ON DELETE SET NULL,
+        
+    CONSTRAINT fk_report_post
+        FOREIGN KEY (post_id) REFERENCES community_posts(post_id)
         ON DELETE SET NULL,
 
     CONSTRAINT fk_report_reviewer

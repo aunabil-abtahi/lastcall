@@ -40,14 +40,19 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         }
     }
 
-    // 2. Takedown Reported Listing & Resolve Report
-    elseif ($action === "takedown_listing") {
+    // 2. Takedown Reported Content & Resolve Report
+    elseif ($action === "takedown_content") {
         $listingId = filter_input(INPUT_POST, "listing_id", FILTER_VALIDATE_INT);
-        if ($listingId) {
+        $postId = filter_input(INPUT_POST, "post_id", FILTER_VALIDATE_INT);
+        if ($listingId || $postId) {
             $pdo->beginTransaction();
             try {
-                $pdo->prepare("UPDATE listings SET listing_status = 'removed' WHERE listing_id = ?")
-                    ->execute([$listingId]);
+                if ($listingId) {
+                    $pdo->prepare("UPDATE listings SET listing_status = 'removed' WHERE listing_id = ?")->execute([$listingId]);
+                }
+                if ($postId) {
+                    $pdo->prepare("DELETE FROM community_posts WHERE post_id = ?")->execute([$postId]);
+                }
                 $pdo->prepare("
                     UPDATE reports 
                     SET report_status = 'resolved', reviewed_by = ?, reviewed_at = NOW() 
@@ -55,11 +60,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 ")->execute([$adminId, $reportId]);
                 $pdo->commit();
 
-                $_SESSION["admin_message"] = "Listing #$listingId has been taken down from marketplace and Report #$reportId resolved.";
+                $_SESSION["admin_message"] = "Content has been taken down and Report #$reportId resolved.";
                 $_SESSION["admin_message_type"] = "success";
             } catch (Exception $e) {
                 $pdo->rollBack();
-                $_SESSION["admin_message"] = "Failed to takedown listing: " . $e->getMessage();
+                $_SESSION["admin_message"] = "Failed to takedown content: " . $e->getMessage();
                 $_SESSION["admin_message_type"] = "error";
             }
         }
@@ -95,9 +100,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         }
     }
 
-    // 4. Enforce Both (Takedown Listing AND Suspend User)
+    // 4. Enforce Both (Takedown Content AND Suspend User)
     elseif ($action === "enforce_both") {
         $listingId = filter_input(INPUT_POST, "listing_id", FILTER_VALIDATE_INT);
+        $postId = filter_input(INPUT_POST, "post_id", FILTER_VALIDATE_INT);
         $userId = filter_input(INPUT_POST, "reported_user_id", FILTER_VALIDATE_INT);
 
         if ($userId === $adminId) {
@@ -109,6 +115,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 if ($listingId) {
                     $pdo->prepare("UPDATE listings SET listing_status = 'removed' WHERE listing_id = ?")
                         ->execute([$listingId]);
+                }
+                if ($postId) {
+                    $pdo->prepare("DELETE FROM community_posts WHERE post_id = ?")
+                        ->execute([$postId]);
                 }
                 if ($userId) {
                     $pdo->prepare("UPDATE users SET account_status = 'suspended' WHERE user_id = ?")
@@ -154,12 +164,14 @@ $reportsQuery = $pdo->prepare("
         r.created_at,
         r.reviewed_at,
         r.listing_id,
+        r.post_id,
         r.reported_user_id,
         r.reporter_id,
         l.title AS listing_title,
         l.listing_status,
         l.original_price,
         l.listing_type,
+        cp.title AS post_title,
         reporter.full_name AS reporter_name,
         reporter.email AS reporter_email,
         reported.full_name AS reported_name,
@@ -169,6 +181,7 @@ $reportsQuery = $pdo->prepare("
         reviewer.full_name AS reviewer_name
     FROM reports r 
     LEFT JOIN listings l ON l.listing_id = r.listing_id 
+    LEFT JOIN community_posts cp ON cp.post_id = r.post_id
     JOIN users reporter ON reporter.user_id = r.reporter_id 
     LEFT JOIN users reported ON reported.user_id = r.reported_user_id 
     LEFT JOIN users reviewer ON reviewer.user_id = r.reviewed_by
@@ -284,6 +297,17 @@ require_once __DIR__ . "/../includes/header.php";
                                             <?= ucfirst($r["listing_status"] ?? "Unknown") ?>
                                         </span>
                                     </div>
+                                <?php elseif (!empty($r["post_id"])): ?>
+                                    <div style="font-weight: 700; color: var(--text-primary);">
+                                        <a href="../community/post.php?id=<?= (int) $r["post_id"] ?>" target="_blank" style="color: var(--brand-navy); text-decoration: underline;">
+                                            <?= e($r["post_title"] ?? "Community Post #" . $r["post_id"]) ?>
+                                        </a>
+                                    </div>
+                                    <div style="display: flex; gap: 6px; align-items: center; margin-top: 4px;">
+                                        <span class="badge" style="background: var(--brand-coral-tint); color: var(--brand-coral); font-size: 10px; padding: 2px 6px; margin: 0;">
+                                            Community Post
+                                        </span>
+                                    </div>
                                 <?php else: ?>
                                     <span style="color: var(--text-muted); font-size: 13px;">— (General User Dispute)</span>
                                 <?php endif; ?>
@@ -348,11 +372,21 @@ require_once __DIR__ . "/../includes/header.php";
                                     <?php if (!empty($r["listing_id"]) && ($r["listing_status"] ?? "") !== "removed"): ?>
                                         <form method="POST" action="reports.php" onsubmit="return confirm('Immediately remove this listing from marketplace?');" style="margin: 0;">
                                             <?= csrf_field() ?>
-                                            <input type="hidden" name="action" value="takedown_listing">
+                                            <input type="hidden" name="action" value="takedown_content">
                                             <input type="hidden" name="report_id" value="<?= (int) $r["report_id"] ?>">
                                             <input type="hidden" name="listing_id" value="<?= (int) $r["listing_id"] ?>">
                                             <button type="submit" class="btn-demo-action clear-btn" style="padding: 3px 8px; font-size: 11px; width: 100%; justify-content: center;">
                                                 ️ Takedown Listing
+                                            </button>
+                                        </form>
+                                    <?php elseif (!empty($r["post_id"]) && !empty($r["post_title"])): ?>
+                                        <form method="POST" action="reports.php" onsubmit="return confirm('Immediately delete this community post?');" style="margin: 0;">
+                                            <?= csrf_field() ?>
+                                            <input type="hidden" name="action" value="takedown_content">
+                                            <input type="hidden" name="report_id" value="<?= (int) $r["report_id"] ?>">
+                                            <input type="hidden" name="post_id" value="<?= (int) $r["post_id"] ?>">
+                                            <button type="submit" class="btn-demo-action clear-btn" style="padding: 3px 8px; font-size: 11px; width: 100%; justify-content: center;">
+                                                ️ Delete Post
                                             </button>
                                         </form>
                                     <?php endif; ?>

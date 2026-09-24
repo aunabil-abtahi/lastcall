@@ -117,6 +117,15 @@ require_once __DIR__ . "/../includes/header.php";
     
     .reply-box { background: var(--surface-bg); border: 1px solid var(--border-subtle); border-radius: var(--radius-xl); padding: 24px; margin-top: 32px; }
     .reply-box h4 { font-size: 1.1rem; color: var(--brand-navy); margin-bottom: 16px; font-weight: 600; }
+    
+    .post-options { position: relative; margin-left: auto; }
+    .post-options-btn { background: transparent; border: none; color: var(--text-muted); cursor: pointer; padding: 8px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: var(--transition-fast); }
+    .post-options-btn:hover { background: var(--surface-muted); color: var(--text-primary); }
+    .post-dropdown { position: absolute; right: 0; top: 100%; background: white; border: 1px solid var(--border-subtle); border-radius: var(--radius-md); box-shadow: var(--shadow-lg); min-width: 150px; z-index: 10; display: none; overflow: hidden; }
+    .post-dropdown.show { display: block; }
+    .post-dropdown-item { display: flex; align-items: center; gap: 8px; padding: 10px 16px; color: var(--text-primary); cursor: pointer; border: none; background: transparent; width: 100%; text-align: left; font-size: 0.95rem; }
+    .post-dropdown-item:hover { background: var(--surface-muted); }
+    .post-dropdown-item.danger { color: var(--brand-coral); }
 </style>
 
 <main style="max-width: 900px; margin: 0 auto; padding: 40px 16px; width: 100%; box-sizing: border-box;">
@@ -157,6 +166,27 @@ require_once __DIR__ . "/../includes/header.php";
                         </div>
                     </div>
                 </div>
+                
+                <?php if ($loggedIn): ?>
+                <div class="post-options">
+                    <button class="post-options-btn" onclick="toggleDropdown(<?= $post['post_id'] ?>)">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg>
+                    </button>
+                    <div class="post-dropdown" id="dropdown_<?= $post['post_id'] ?>">
+                        <?php if ($post['author_id'] == $userId || ($_SESSION['role'] ?? '') === 'admin'): ?>
+                            <button class="post-dropdown-item danger" onclick="deletePost(<?= $post['post_id'] ?>)">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                Delete Post
+                            </button>
+                        <?php else: ?>
+                            <button class="post-dropdown-item" onclick="reportPost(<?= $post['post_id'] ?>)">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg>
+                                Report Post
+                            </button>
+                        <?php endif; ?>
+                    </div>
+                </div>
+                <?php endif; ?>
             </div>
         </div>
 
@@ -238,5 +268,70 @@ require_once __DIR__ . "/../includes/header.php";
         <?php endif; ?>
     </div>
 </main>
+
+<script>
+function toggleDropdown(postId) {
+    const dropdown = document.getElementById('dropdown_' + postId);
+    dropdown.classList.toggle('show');
+}
+
+// Close dropdown when clicking outside
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('.post-options')) {
+        document.querySelectorAll('.post-dropdown').forEach(el => el.classList.remove('show'));
+    }
+});
+
+async function deletePost(postId) {
+    if (!confirm('Are you sure you want to delete this post?')) return;
+    
+    try {
+        const response = await fetch('delete_post.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-Token': '<?= $_SESSION['csrf_token'] ?? '' ?>'
+            },
+            body: JSON.stringify({ post_id: postId })
+        });
+        
+        const data = await response.json();
+        if (data.success) {
+            window.location.href = 'index.php';
+        } else {
+            alert(data.error || 'Failed to delete post.');
+        }
+    } catch (err) {
+        console.error(err);
+        alert('An error occurred.');
+    }
+}
+
+async function reportPost(postId) {
+    const reason = prompt("Why are you reporting this post?");
+    if (!reason) return;
+    
+    try {
+        const response = await fetch('report_post.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-Token': '<?= $_SESSION['csrf_token'] ?? '' ?>'
+            },
+            body: JSON.stringify({ post_id: postId, reason: reason })
+        });
+        
+        const data = await response.json();
+        if (data.success) {
+            alert("Post reported successfully. Our admins will review it.");
+        } else {
+            alert(data.error || 'Failed to report post.');
+        }
+    } catch (err) {
+        console.error(err);
+        alert('An error occurred.');
+    }
+}
+</script>
 
 <?php require_once __DIR__ . "/../includes/footer.php"; ?>
