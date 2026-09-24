@@ -336,6 +336,14 @@ require_once __DIR__ . "/../includes/header.php";
                     <div style="font-size: 0.75rem; color: var(--text-muted);">Reset &amp; seed demo items</div>
                 </div>
             </a>
+
+            <a href="audit_logs.php" class="dropdown-link" style="padding: 12px 14px; border: 1px solid var(--border-subtle); border-radius: var(--radius-md); text-decoration: none; display: flex; align-items: center; gap: 10px; background: #f8fafc; transition: all 0.2s;">
+                <span style="font-size: 1.25rem;">📜</span>
+                <div>
+                    <div style="font-weight: 700; font-size: 0.88rem; color: var(--brand-navy);">Audit Logs</div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted);">View DBMS triggers & changes</div>
+                </div>
+            </a>
         </div>
     </div>
 
