@@ -3,7 +3,7 @@ require_once __DIR__ . "/../config/database.php";
 require_once __DIR__ . "/../includes/auth.php";
 
 $loggedIn = isLoggedIn();
-$userId = currentUserId();
+$userId = $_SESSION['user_id'] ?? 0;
 $postId = (int)($_GET['id'] ?? 0);
 
 if (!$postId) {
