@@ -101,6 +101,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         }
     }
 
+    $imageUrl = null;
     if (count($errors) === 0) {
         if (!isset($_FILES['image']) || $_FILES['image']['error'] !== UPLOAD_ERR_OK) {
             $errors[] = "Image upload is required and must be valid.";
