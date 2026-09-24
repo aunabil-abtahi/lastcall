@@ -513,7 +513,30 @@ JOIN users u ON u.user_id = r.buyer_id
 JOIN seller_profiles sp ON sp.user_id = r.seller_id
 JOIN order_items oi ON oi.order_id = r.order_id;
 
--- 19. Audit Logs Table (Advanced DBMS tracking)
+-- 19. Community Posts
+CREATE TABLE community_posts (
+    post_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    author_id INT UNSIGNED NOT NULL,
+    topic ENUM('food', 'events', 'general', 'feedback') NOT NULL DEFAULT 'general',
+    title VARCHAR(200) NOT NULL,
+    content TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_post_author FOREIGN KEY (author_id) REFERENCES users(user_id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- 20. Community Comments
+CREATE TABLE community_comments (
+    comment_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    post_id INT UNSIGNED NOT NULL,
+    author_id INT UNSIGNED NOT NULL,
+    content TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_comment_post FOREIGN KEY (post_id) REFERENCES community_posts(post_id) ON DELETE CASCADE,
+    CONSTRAINT fk_comment_author FOREIGN KEY (author_id) REFERENCES users(user_id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- 21. Audit Logs Table (Advanced DBMS tracking)
 CREATE TABLE audit_logs (
     log_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     table_name VARCHAR(50) NOT NULL,

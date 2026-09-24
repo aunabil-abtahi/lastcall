@@ -77,6 +77,9 @@ $_cssVersion = file_exists(__DIR__ . "/../assets/css/style.css") ? filemtime(__D
                 <a href="<?= $_base ?>recommendations.php" class="nav-link <?= basename($_SERVER['PHP_SELF']) === 'recommendations.php' ? 'active' : '' ?>">
                     For You
                 </a>
+                <a href="<?= $_base ?>community/index.php" class="nav-link <?= str_contains($_SERVER['SCRIPT_NAME'], '/community/') ? 'active' : '' ?>">
+                    Community
+                </a>
             </nav>
         </div>
 
@@ -227,6 +230,7 @@ $_cssVersion = file_exists(__DIR__ . "/../assets/css/style.css") ? filemtime(__D
     <a href="<?= $_base ?>index.php?type=food" class="mobile-nav-link">Food Rescue</a>
     <a href="<?= $_base ?>index.php?type=ticket" class="mobile-nav-link">Event Tickets</a>
     <a href="<?= $_base ?>recommendations.php" class="mobile-nav-link">Recommended</a>
+    <a href="<?= $_base ?>community/index.php" class="mobile-nav-link">Community</a>
     <a href="<?= $_base ?>leaderboard.php" class="mobile-nav-link">Leaderboard</a>
 
     <?php if ($_loggedIn): ?>
