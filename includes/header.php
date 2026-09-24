@@ -16,7 +16,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
 // Detect whether we are in a subdirectory (admin/, seller/, payments/, tasks/)
 $_headerScriptPath = $_SERVER["SCRIPT_NAME"] ?? "";
-$_headerInSubdir = (bool) preg_match('#/(admin|seller|payments|tasks)/#', $_headerScriptPath);
+$_headerInSubdir = (bool) preg_match('#/(admin|seller|payments|tasks|community)/#', $_headerScriptPath);
 $_base = $_headerInSubdir ? "../" : "";
 
 if (!function_exists("e")) {
@@ -68,12 +68,6 @@ $_cssVersion = file_exists(__DIR__ . "/../assets/css/style.css") ? filemtime(__D
             <!-- Primary Discovery Navigation (Left) -->
             <nav class="nav-primary">
                 <a href="<?= $_base ?>index.php" class="nav-link <?= basename($_SERVER['PHP_SELF']) === 'index.php' && empty($_GET['type']) ? 'active' : '' ?>">Browse</a>
-                <a href="<?= $_base ?>index.php?type=food" class="nav-link <?= ($_GET['type'] ?? '') === 'food' ? 'active' : '' ?>">
-                    Food Rescue
-                </a>
-                <a href="<?= $_base ?>index.php?type=ticket" class="nav-link <?= ($_GET['type'] ?? '') === 'ticket' ? 'active' : '' ?>">
-                    Event Tickets
-                </a>
                 <a href="<?= $_base ?>recommendations.php" class="nav-link <?= basename($_SERVER['PHP_SELF']) === 'recommendations.php' ? 'active' : '' ?>">
                     For You
                 </a>
@@ -227,8 +221,6 @@ $_cssVersion = file_exists(__DIR__ . "/../assets/css/style.css") ? filemtime(__D
 <!-- Mobile Navigation Drawer -->
 <div class="mobile-nav-drawer" id="mobileNavDrawer">
     <a href="<?= $_base ?>index.php" class="mobile-nav-link">Browse Deals</a>
-    <a href="<?= $_base ?>index.php?type=food" class="mobile-nav-link">Food Rescue</a>
-    <a href="<?= $_base ?>index.php?type=ticket" class="mobile-nav-link">Event Tickets</a>
     <a href="<?= $_base ?>recommendations.php" class="mobile-nav-link">Recommended</a>
     <a href="<?= $_base ?>community/index.php" class="mobile-nav-link">Community</a>
     <a href="<?= $_base ?>leaderboard.php" class="mobile-nav-link">Leaderboard</a>

@@ -20,7 +20,7 @@ function currentUserRole(): string {
 
 function loginPath(): string {
     $script = $_SERVER["SCRIPT_NAME"] ?? "";
-    if (preg_match('#/(admin|seller|payments|tasks)/#', $script)) {
+    if (preg_match('#/(admin|seller|payments|tasks|community)/#', $script)) {
         return "../login.php";
     }
     return "login.php";
@@ -28,7 +28,7 @@ function loginPath(): string {
 
 function homePath(): string {
     $script = $_SERVER["SCRIPT_NAME"] ?? "";
-    if (preg_match('#/(admin|seller|payments|tasks)/#', $script)) {
+    if (preg_match('#/(admin|seller|payments|tasks|community)/#', $script)) {
         return "../index.php";
     }
     return "index.php";

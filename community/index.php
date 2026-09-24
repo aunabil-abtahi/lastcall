@@ -7,7 +7,7 @@ $userId = $_SESSION['user_id'] ?? 0;
 
 // Handle Post Submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $loggedIn) {
-    verifyCsrfToken();
+    require_csrf();
     $title = trim($_POST['title'] ?? '');
     $content = trim($_POST['content'] ?? '');
     $topic = $_POST['topic'] ?? 'general';
@@ -15,9 +15,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $loggedIn) {
     $validTopics = ['food', 'events', 'general', 'feedback'];
     if (!in_array($topic, $validTopics)) $topic = 'general';
 
+    $imageUrl = null;
+    if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+        $uploadDir = __DIR__ . '/../assets/images/community/';
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0755, true);
+        }
+        $fileName = time() . '_' . preg_replace('/[^a-zA-Z0-9.-]/', '_', basename($_FILES['image']['name']));
+        $targetFile = $uploadDir . $fileName;
+        
+        $imageFileType = strtolower(pathinfo($targetFile, PATHINFO_EXTENSION));
+        $allowedTypes = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+        
+        if (in_array($imageFileType, $allowedTypes)) {
+            if (move_uploaded_file($_FILES['image']['tmp_name'], $targetFile)) {
+                $imageUrl = 'assets/images/community/' . $fileName;
+            }
+        }
+    }
+
     if ($title && $content) {
-        $stmt = $pdo->prepare("INSERT INTO community_posts (author_id, topic, title, content) VALUES (?, ?, ?, ?)");
-        $stmt->execute([$userId, $topic, $title, $content]);
+        $stmt = $pdo->prepare("INSERT INTO community_posts (author_id, topic, title, content, image_url) VALUES (?, ?, ?, ?, ?)");
+        $stmt->execute([$userId, $topic, $title, $content, $imageUrl]);
         $_SESSION['flash_success'] = "Your post has been published!";
         header("Location: index.php");
         exit;
@@ -35,12 +54,14 @@ $query = "
         p.*,
         u.full_name as author_name,
         u.role as author_role,
-        (SELECT COUNT(*) FROM community_comments c WHERE c.post_id = p.post_id) as comment_count
+        (SELECT COUNT(*) FROM community_comments c WHERE c.post_id = p.post_id) as comment_count,
+        (SELECT COUNT(*) FROM community_likes l WHERE l.post_id = p.post_id) as like_count,
+        (SELECT 1 FROM community_likes l2 WHERE l2.post_id = p.post_id AND l2.user_id = ?) as user_liked
     FROM community_posts p
     JOIN users u ON p.author_id = u.user_id
 ";
 
-$params = [];
+$params = [$userId];
 if ($topicFilter !== 'all') {
     $query .= " WHERE p.topic = ?";
     $params[] = $topicFilter;
@@ -84,98 +105,283 @@ $pageTitle = "Community Hub | LastCall";
 require_once __DIR__ . "/../includes/header.php";
 ?>
 
-<main style="max-width: 800px; margin: 0 auto; padding: 32px 16px;">
-    <div style="text-align: center; margin-bottom: 32px;">
-        <h1 style="font-size: 2.2rem; color: var(--brand-navy); margin-bottom: 8px;">Community Hub</h1>
-        <p style="color: var(--text-secondary); font-size: 1.1rem;">Discuss food, events, and hyper-local deals with your community.</p>
+<style>
+    .community-header { text-align: center; margin-bottom: 40px; padding: 40px 20px; background: linear-gradient(135deg, var(--brand-navy-dark), var(--brand-navy)); border-radius: var(--radius-xl); color: white; box-shadow: var(--shadow-lg); position: relative; overflow: hidden; }
+    .community-header::before { content: ""; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(255,255,255,0.05) 10%, transparent 20%), radial-gradient(circle, rgba(255,255,255,0.05) 10%, transparent 20%); background-size: 20px 20px; background-position: 0 0, 10px 10px; opacity: 0.3; }
+    .community-title { font-size: 2.5rem; font-family: var(--font-serif); font-weight: 700; margin-bottom: 12px; position: relative; z-index: 2; }
+    .community-subtitle { font-size: 1.15rem; color: var(--brand-navy-tint); opacity: 0.9; max-width: 600px; margin: 0 auto; position: relative; z-index: 2; }
+    
+    .create-post-card { background: var(--surface-card); border-radius: var(--radius-xl); padding: 24px; box-shadow: var(--shadow-sm); margin-bottom: 40px; border: 1px solid var(--border-subtle); transition: var(--transition-smooth); }
+    .create-post-card:focus-within { box-shadow: var(--shadow-lg); border-color: var(--border-medium); }
+    
+    .filter-tabs { display: flex; gap: 12px; margin-bottom: 32px; overflow-x: auto; padding-bottom: 12px; scrollbar-width: none; }
+    .filter-tabs::-webkit-scrollbar { display: none; }
+    .filter-tab { background: var(--surface-card); border: 1px solid var(--border-subtle); color: var(--text-secondary); padding: 10px 24px; border-radius: 30px; font-weight: 600; font-size: 0.95rem; white-space: nowrap; transition: var(--transition-fast); cursor: pointer; box-shadow: var(--shadow-sm); }
+    .filter-tab:hover { border-color: var(--brand-navy); color: var(--brand-navy); transform: translateY(-2px); }
+    .filter-tab.active { background: var(--brand-navy); color: white; border-color: var(--brand-navy); box-shadow: 0 4px 12px rgba(30, 41, 84, 0.2); }
+    
+    /* Feed Styles */
+    .post-card { background: var(--surface-card); border-radius: var(--radius-lg); margin-bottom: 24px; border: 1px solid var(--border-subtle); box-shadow: var(--shadow-sm); overflow: hidden; display: flex; flex-direction: column; }
+    .post-header { padding: 20px 20px 12px 20px; display: flex; align-items: flex-start; justify-content: space-between; }
+    .post-meta { display: flex; align-items: center; gap: 12px; }
+    .post-avatar { width: 44px; height: 44px; border-radius: 50%; background: var(--brand-navy-tint); color: var(--brand-navy); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.1rem; flex-shrink: 0; }
+    .post-author { font-size: 1rem; font-weight: 700; color: var(--text-primary); }
+    .post-date { font-size: 0.85rem; color: var(--text-muted); display: flex; align-items: center; gap: 6px; margin-top: 2px; }
+    
+    .post-content-wrap { padding: 0 20px 16px 20px; }
+    .post-title { font-size: 1.25rem; color: var(--brand-navy); margin: 0 0 10px 0; font-weight: 700; line-height: 1.4; }
+    .post-excerpt { color: var(--text-primary); line-height: 1.5; font-size: 1rem; margin-bottom: 0; }
+    
+    .post-image { width: 100%; max-height: 500px; object-fit: cover; display: block; border-top: 1px solid var(--border-subtle); border-bottom: 1px solid var(--border-subtle); }
+    
+    .post-stats { padding: 12px 20px; border-bottom: 1px solid var(--border-subtle); display: flex; justify-content: space-between; color: var(--text-muted); font-size: 0.9rem; }
+    
+    .post-actions { display: flex; padding: 4px 12px; }
+    .action-btn { flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px; background: transparent; border: none; border-radius: 6px; color: var(--text-secondary); font-weight: 600; font-size: 0.95rem; cursor: pointer; transition: var(--transition-fast); text-decoration: none; }
+    .action-btn:hover { background: var(--surface-muted); color: var(--text-primary); }
+    .action-btn.liked { color: var(--brand-coral); }
+    .action-btn.liked svg { fill: var(--brand-coral); color: var(--brand-coral); }
+    
+    .file-input-wrapper { position: relative; overflow: hidden; display: inline-block; cursor: pointer; }
+    .file-input-wrapper input[type=file] { font-size: 100px; position: absolute; left: 0; top: 0; opacity: 0; cursor: pointer; }
+    .file-input-btn { display: inline-flex; align-items: center; gap: 8px; color: var(--text-secondary); font-weight: 600; padding: 8px 16px; border-radius: 20px; background: var(--surface-muted); transition: var(--transition-fast); cursor: pointer; }
+    .file-input-wrapper:hover .file-input-btn { background: #e2e8f0; color: var(--brand-navy); }
+</style>
+
+<main style="max-width: 900px; margin: 0 auto; padding: 40px 16px; width: 100%; box-sizing: border-box;">
+    <!-- Beautiful Header -->
+    <div class="community-header">
+        <h1 class="community-title">Community Feed</h1>
+        <p class="community-subtitle">Discuss food rescues, event hype, and hyper-local deals with your neighbors.</p>
     </div>
 
     <!-- Create Post Form -->
     <?php if ($loggedIn): ?>
-        <div style="background: white; border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: 20px; box-shadow: var(--shadow-sm); margin-bottom: 32px;">
-            <h2 style="font-size: 1.25rem; color: var(--brand-navy); margin-bottom: 16px;">Start a Discussion</h2>
-            <form method="POST" action="index.php">
+        <div class="create-post-card">
+            <form method="POST" action="index.php" enctype="multipart/form-data">
                 <?= csrf_field() ?>
                 
-                <div style="display: flex; gap: 12px; margin-bottom: 12px;">
+                <!-- Simple Create Header like FB -->
+                <div style="display: flex; gap: 12px; margin-bottom: 16px;">
+                    <div class="post-avatar" style="width: 40px; height: 40px; font-size: 1rem;">
+                        <?= mb_strtoupper(mb_substr($_SESSION['full_name'] ?? 'U', 0, 1)) ?>
+                    </div>
                     <div style="flex: 1;">
-                        <input type="text" name="title" placeholder="What do you want to talk about?" required class="form-input" style="width: 100%;">
+                        <input type="text" name="title" placeholder="What's the topic?" required class="form-input" style="width: 100%; box-sizing: border-box; font-size: 1.05rem; padding: 10px 16px; background: var(--surface-muted); border-radius: 20px; border-color: transparent;">
                     </div>
-                    <div>
-                        <select name="topic" class="form-select" required>
-                            <option value="general">General Chat</option>
-                            <option value="food">Food Rescue</option>
-                            <option value="events">Event Hype</option>
-                            <option value="feedback">Feedback & Ideas</option>
+                </div>
+
+                <div style="margin-bottom: 16px;">
+                    <textarea name="content" rows="3" placeholder="Share your thoughts, ask questions, or recommend a hidden gem..." required class="form-input" style="width: 100%; box-sizing: border-box; font-size: 1.05rem; padding: 16px; border: none; resize: none;"></textarea>
+                </div>
+                
+                <div style="border-top: 1px solid var(--border-subtle); padding-top: 16px; display: flex; align-items: center; justify-content: space-between;">
+                    <div style="display: flex; gap: 12px; align-items: center;">
+                        <select name="topic" class="form-select" required style="font-size: 0.9rem; padding: 6px 32px 6px 12px; border-radius: 20px; width: auto; background-color: var(--surface-muted); border-color: transparent;">
+                            <option value="general">💬 General</option>
+                            <option value="food">🍔 Food</option>
+                            <option value="events">🎟️ Events</option>
+                            <option value="feedback">💡 Feedback</option>
                         </select>
+                        
+                        <div class="file-input-wrapper">
+                            <div class="file-input-btn">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                                Photo
+                            </div>
+                            <input type="file" name="image" accept="image/*" id="postImageInput">
+                        </div>
                     </div>
+                    <button type="submit" class="btn-primary-navy" style="padding: 8px 24px; font-size: 1rem; border-radius: 20px;">
+                        Post
+                    </button>
                 </div>
-                
-                <div style="margin-bottom: 12px;">
-                    <textarea name="content" rows="3" placeholder="Share your thoughts, ask questions, or recommend a hidden gem..." required class="form-input" style="width: 100%; resize: vertical;"></textarea>
-                </div>
-                
-                <div style="text-align: right;">
-                    <button type="submit" class="primary-button" style="padding: 10px 24px;">Post to Community</button>
+                <!-- Image Preview Area -->
+                <div id="imagePreviewContainer" style="display: none; margin-top: 16px; border-radius: 8px; overflow: hidden; position: relative;">
+                    <img id="imagePreview" src="" alt="Preview" style="width: 100%; max-height: 200px; object-fit: cover;">
+                    <button type="button" id="clearImageBtn" style="position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,0.6); color: white; border: none; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; cursor: pointer;">&times;</button>
                 </div>
             </form>
         </div>
     <?php else: ?>
-        <div style="background: #f8fafc; border: 1px dashed var(--border-subtle); border-radius: var(--radius-lg); padding: 24px; text-align: center; margin-bottom: 32px;">
-            <p style="color: var(--text-secondary); margin-bottom: 12px;">Log in to join the conversation and post in the community.</p>
-            <a href="../login.php" class="primary-button" style="display: inline-block;">Log In</a>
+        <div style="background: var(--brand-navy-tint); border: 2px dashed var(--border-medium); border-radius: var(--radius-xl); padding: 40px 24px; text-align: center; margin-bottom: 40px;">
+            <div style="width: 64px; height: 64px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; box-shadow: var(--shadow-sm);">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--brand-navy);"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            </div>
+            <h3 style="font-size: 1.5rem; color: var(--brand-navy); margin-bottom: 12px;">Join the Conversation</h3>
+            <p style="color: var(--text-secondary); margin-bottom: 24px; max-width: 400px; margin-left: auto; margin-right: auto;">Log in to create posts, reply to threads, and like content from your community.</p>
+            <a href="../login.php" class="btn-primary-navy" style="padding: 12px 32px; border-radius: 30px; display: inline-block;">Log In or Sign Up</a>
         </div>
     <?php endif; ?>
 
-    <!-- Filters -->
-    <div style="display: flex; gap: 12px; margin-bottom: 24px; overflow-x: auto; padding-bottom: 8px;">
-        <a href="?topic=all" class="badge" style="background: <?= $topicFilter === 'all' ? 'var(--brand-navy)' : '#f1f5f9' ?>; color: <?= $topicFilter === 'all' ? 'white' : '#475569' ?>; font-size: 0.9rem; padding: 6px 16px; border-radius: 20px; text-decoration: none;">All Topics</a>
-        <a href="?topic=food" class="badge" style="background: <?= $topicFilter === 'food' ? 'var(--brand-navy)' : '#f1f5f9' ?>; color: <?= $topicFilter === 'food' ? 'white' : '#475569' ?>; font-size: 0.9rem; padding: 6px 16px; border-radius: 20px; text-decoration: none;">Food Rescue</a>
-        <a href="?topic=events" class="badge" style="background: <?= $topicFilter === 'events' ? 'var(--brand-navy)' : '#f1f5f9' ?>; color: <?= $topicFilter === 'events' ? 'white' : '#475569' ?>; font-size: 0.9rem; padding: 6px 16px; border-radius: 20px; text-decoration: none;">Event Hype</a>
-        <a href="?topic=general" class="badge" style="background: <?= $topicFilter === 'general' ? 'var(--brand-navy)' : '#f1f5f9' ?>; color: <?= $topicFilter === 'general' ? 'white' : '#475569' ?>; font-size: 0.9rem; padding: 6px 16px; border-radius: 20px; text-decoration: none;">General Chat</a>
-        <a href="?topic=feedback" class="badge" style="background: <?= $topicFilter === 'feedback' ? 'var(--brand-navy)' : '#f1f5f9' ?>; color: <?= $topicFilter === 'feedback' ? 'white' : '#475569' ?>; font-size: 0.9rem; padding: 6px 16px; border-radius: 20px; text-decoration: none;">Feedback</a>
+    <!-- Filter Tabs -->
+    <div class="filter-tabs">
+        <a href="?topic=all" class="filter-tab <?= $topicFilter === 'all' ? 'active' : '' ?>">All Topics</a>
+        <a href="?topic=food" class="filter-tab <?= $topicFilter === 'food' ? 'active' : '' ?>">🍔 Food Rescue</a>
+        <a href="?topic=events" class="filter-tab <?= $topicFilter === 'events' ? 'active' : '' ?>">🎟️ Event Hype</a>
+        <a href="?topic=general" class="filter-tab <?= $topicFilter === 'general' ? 'active' : '' ?>">💬 General</a>
+        <a href="?topic=feedback" class="filter-tab <?= $topicFilter === 'feedback' ? 'active' : '' ?>">💡 Feedback</a>
     </div>
 
     <!-- Feed -->
-    <div style="display: flex; flex-direction: column; gap: 16px;">
+    <div style="display: flex; flex-direction: column;">
         <?php if (empty($posts)): ?>
-            <div style="text-align: center; padding: 48px; background: white; border: 1px solid var(--border-subtle); border-radius: var(--radius-lg);">
-                <p style="color: var(--text-muted); font-size: 1.1rem;">No discussions found in this topic.</p>
+            <div style="text-align: center; padding: 64px 24px; background: white; border: 1px solid var(--border-subtle); border-radius: var(--radius-xl); box-shadow: var(--shadow-sm);">
+                <div style="width: 80px; height: 80px; background: var(--surface-muted); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-muted);"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                </div>
+                <h3 style="font-size: 1.5rem; color: var(--brand-navy); margin-bottom: 8px;">No posts yet</h3>
+                <p style="color: var(--text-muted); font-size: 1.1rem; max-width: 400px; margin: 0 auto;">Be the first to share something with the community.</p>
             </div>
         <?php else: ?>
             <?php foreach ($posts as $post): ?>
-                <a href="post.php?id=<?= $post['post_id'] ?>" style="display: block; background: white; border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: 20px; text-decoration: none; color: inherit; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.02);" onmouseover="this.style.borderColor='var(--brand-coral)'; this.style.transform='translateY(-2px)';" onmouseout="this.style.borderColor='var(--border-subtle)'; this.style.transform='translateY(0)';">
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
-                        <div>
-                            <span class="badge" style="background: <?= getTopicColor($post['topic']) ?>; color: <?= getTopicTextColor($post['topic']) ?>; margin-bottom: 8px; display: inline-block;">
-                                <?= e(ucfirst($post['topic'])) ?>
-                            </span>
-                            <h3 style="font-size: 1.25rem; color: var(--brand-navy); margin: 0 0 4px 0;"><?= e($post['title']) ?></h3>
-                            <div style="font-size: 0.85rem; color: var(--text-muted); display: flex; align-items: center; gap: 6px;">
-                                <strong><?= e($post['author_name']) ?></strong> 
-                                <?php if ($post['author_role'] === 'seller' || $post['author_role'] === 'admin'): ?>
-                                    <span class="badge" style="font-size: 0.65rem; padding: 2px 6px;"><?= ucfirst($post['author_role']) ?></span>
-                                <?php endif; ?>
-                                <span>&bull;</span>
-                                <span><?= date('M j, Y g:i A', strtotime($post['created_at'])) ?></span>
+                <div class="post-card">
+                    <!-- Post Header (Author Info) -->
+                    <div class="post-header">
+                        <div class="post-meta">
+                            <div class="post-avatar">
+                                <?= mb_strtoupper(mb_substr($post['author_name'], 0, 1)) ?>
+                            </div>
+                            <div>
+                                <div class="post-author" style="display: flex; align-items: center; gap: 8px;">
+                                    <?= e($post['author_name']) ?>
+                                    <?php if ($post['author_role'] === 'seller'): ?>
+                                        <span style="background: var(--brand-emerald-tint); color: var(--brand-emerald-dark); font-size: 0.65rem; padding: 2px 6px; border-radius: 10px; text-transform: uppercase; font-weight: 800;">Vendor</span>
+                                    <?php elseif ($post['author_role'] === 'admin'): ?>
+                                        <span style="background: var(--brand-coral-tint); color: var(--brand-coral-hover); font-size: 0.65rem; padding: 2px 6px; border-radius: 10px; text-transform: uppercase; font-weight: 800;">Admin</span>
+                                    <?php endif; ?>
+                                </div>
+                                <div class="post-date">
+                                    <?= date('F j \a\t g:i a', strtotime($post['created_at'])) ?> · 
+                                    <span style="color: <?= getTopicTextColor($post['topic']) ?>; font-weight: 600;">
+                                        <?= e(ucfirst($post['topic'])) ?>
+                                    </span>
+                                </div>
                             </div>
                         </div>
                     </div>
                     
-                    <p style="color: var(--text-secondary); line-height: 1.5; margin: 0 0 16px 0; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">
-                        <?= nl2br(e($post['content'])) ?>
-                    </p>
-                    
-                    <div style="display: flex; align-items: center; gap: 6px; color: var(--brand-navy); font-weight: 600; font-size: 0.9rem;">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-                        </svg>
-                        <?= $post['comment_count'] ?> <?= $post['comment_count'] === 1 ? 'Comment' : 'Comments' ?>
+                    <!-- Post Text -->
+                    <div class="post-content-wrap">
+                        <h3 class="post-title"><?= e($post['title']) ?></h3>
+                        <p class="post-excerpt"><?= nl2br(e($post['content'])) ?></p>
                     </div>
-                </a>
+
+                    <!-- Post Image -->
+                    <?php if (!empty($post['image_url'])): ?>
+                        <img src="<?= $_base . e($post['image_url']) ?>" alt="Post attached image" class="post-image">
+                    <?php endif; ?>
+                    
+                    <!-- Post Stats (Likes & Comments counts) -->
+                    <div class="post-stats">
+                        <div>
+                            <span id="likeCount_<?= $post['post_id'] ?>"><?= $post['like_count'] ?></span> <?= $post['like_count'] === 1 ? 'Like' : 'Likes' ?>
+                        </div>
+                        <div>
+                            <?= $post['comment_count'] ?> <?= $post['comment_count'] === 1 ? 'Comment' : 'Comments' ?>
+                        </div>
+                    </div>
+                    
+                    <!-- Action Bar -->
+                    <div class="post-actions">
+                        <button class="action-btn like-btn <?= $post['user_liked'] ? 'liked' : '' ?>" data-post-id="<?= $post['post_id'] ?>">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
+                            </svg>
+                            <span class="like-text"><?= $post['user_liked'] ? 'Liked' : 'Like' ?></span>
+                        </button>
+                        
+                        <a href="post.php?id=<?= $post['post_id'] ?>" class="action-btn">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+                            </svg>
+                            Comment
+                        </a>
+                    </div>
+                </div>
             <?php endforeach; ?>
         <?php endif; ?>
     </div>
 </main>
+
+<script>
+// Image Upload Preview
+const imageInput = document.getElementById('postImageInput');
+const previewContainer = document.getElementById('imagePreviewContainer');
+const previewImg = document.getElementById('imagePreview');
+const clearBtn = document.getElementById('clearImageBtn');
+
+if (imageInput) {
+    imageInput.addEventListener('change', function() {
+        if (this.files && this.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewImg.src = e.target.result;
+                previewContainer.style.display = 'block';
+            }
+            reader.readAsDataURL(this.files[0]);
+        }
+    });
+
+    clearBtn.addEventListener('click', function() {
+        imageInput.value = '';
+        previewContainer.style.display = 'none';
+        previewImg.src = '';
+    });
+}
+
+// AJAX Like Functionality
+document.querySelectorAll('.like-btn').forEach(btn => {
+    btn.addEventListener('click', async function() {
+        <?php if (!$loggedIn): ?>
+            window.location.href = '../login.php';
+            return;
+        <?php endif; ?>
+
+        const postId = this.dataset.postId;
+        const countSpan = document.getElementById(`likeCount_${postId}`);
+        const textSpan = this.querySelector('.like-text');
+        
+        try {
+            const response = await fetch('like.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-Token': '<?= $_SESSION['csrf_token'] ?? '' ?>'
+                },
+                body: JSON.stringify({ post_id: postId })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                if (data.action === 'liked') {
+                    this.classList.add('liked');
+                    textSpan.textContent = 'Liked';
+                } else {
+                    this.classList.remove('liked');
+                    textSpan.textContent = 'Like';
+                }
+                
+                // Update text content with pluralization handled slightly simply
+                // since we want to keep "X Likes" format, we just update the number
+                // But in PHP we did "$post['like_count'] === 1 ? 'Like' : 'Likes'". 
+                // A quick hack is just setting the number and ignoring the "Likes" word if it's outside.
+                // Our HTML is `<span id="likeCount_X">Y</span> Likes`
+                countSpan.textContent = data.likes;
+                // Update pluralization in parent
+                const parentTextNode = Array.from(countSpan.parentNode.childNodes).find(n => n.nodeType === 3 && n.textContent.trim().toLowerCase().includes('like'));
+                if (parentTextNode) {
+                    parentTextNode.textContent = data.likes === 1 ? ' Like' : ' Likes';
+                }
+            } else {
+                alert(data.error || 'Something went wrong');
+            }
+        } catch (error) {
+            console.error('Error liking post:', error);
+        }
+    });
+});
+</script>
 
 <?php require_once __DIR__ . "/../includes/footer.php"; ?>

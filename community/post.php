@@ -31,7 +31,7 @@ if (!$post) {
 
 // Handle Comment Submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $loggedIn) {
-    verifyCsrfToken();
+    require_csrf();
     $content = trim($_POST['content'] ?? '');
 
     if ($content) {
@@ -84,9 +84,44 @@ $pageTitle = e($post['title']) . " | LastCall Community";
 require_once __DIR__ . "/../includes/header.php";
 ?>
 
-<main style="max-width: 800px; margin: 0 auto; padding: 32px 16px;">
-    <a href="index.php" style="display: inline-flex; align-items: center; gap: 8px; color: var(--text-secondary); text-decoration: none; margin-bottom: 24px; font-weight: 500;">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<style>
+    .post-detail-container { background: var(--surface-card); border-radius: var(--radius-xl); border: 1px solid var(--border-subtle); box-shadow: var(--shadow-sm); overflow: hidden; margin-bottom: 32px; }
+    .post-detail-header { padding: 32px; border-bottom: 1px solid var(--border-subtle); }
+    .post-detail-topic { display: inline-flex; align-items: center; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 16px; }
+    .post-detail-title { font-size: 2rem; color: var(--brand-navy); margin: 0 0 24px 0; font-family: var(--font-serif); font-weight: 700; line-height: 1.3; }
+    
+    .post-meta-bar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+    .author-info { display: flex; align-items: center; gap: 16px; }
+    .author-avatar { width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, var(--brand-navy-light), var(--brand-navy)); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.2rem; box-shadow: var(--shadow-sm); }
+    .author-name { font-weight: 700; color: var(--text-primary); font-size: 1.1rem; display: flex; align-items: center; gap: 8px; }
+    .author-role-badge { font-size: 0.7rem; padding: 2px 8px; border-radius: 12px; text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px; }
+    .author-role-seller { background: var(--brand-emerald-tint); color: var(--brand-emerald-dark); }
+    .author-role-admin { background: var(--brand-coral-tint); color: var(--brand-coral-hover); }
+    .post-timestamp { font-size: 0.9rem; color: var(--text-muted); display: flex; align-items: center; gap: 6px; margin-top: 4px; }
+    
+    .post-detail-content { padding: 32px; font-size: 1.1rem; line-height: 1.7; color: var(--text-primary); }
+    
+    .comments-section { padding: 0 16px; }
+    .comments-header { font-size: 1.25rem; font-weight: 700; color: var(--brand-navy); margin-bottom: 24px; display: flex; align-items: center; gap: 10px; }
+    
+    .comment-card { background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: 20px; margin-bottom: 16px; transition: var(--transition-fast); }
+    .comment-card:hover { border-color: var(--border-medium); box-shadow: var(--shadow-sm); }
+    .comment-card.is-author { border-left: 4px solid var(--brand-coral); }
+    
+    .comment-header { display: flex; justify-content: space-between; margin-bottom: 12px; }
+    .comment-author-info { display: flex; align-items: center; gap: 12px; }
+    .comment-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--surface-muted); color: var(--text-secondary); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1rem; }
+    .comment-author { font-weight: 600; color: var(--text-primary); font-size: 0.95rem; display: flex; align-items: center; gap: 6px; }
+    .comment-time { font-size: 0.8rem; color: var(--text-muted); }
+    .comment-content { font-size: 1rem; line-height: 1.6; color: var(--text-secondary); padding-left: 48px; }
+    
+    .reply-box { background: var(--surface-bg); border: 1px solid var(--border-subtle); border-radius: var(--radius-xl); padding: 24px; margin-top: 32px; }
+    .reply-box h4 { font-size: 1.1rem; color: var(--brand-navy); margin-bottom: 16px; font-weight: 600; }
+</style>
+
+<main style="max-width: 900px; margin: 0 auto; padding: 40px 16px; width: 100%; box-sizing: border-box;">
+    <a href="index.php" style="display: inline-flex; align-items: center; gap: 8px; color: var(--text-secondary); text-decoration: none; margin-bottom: 24px; font-weight: 600; transition: var(--transition-fast);" onmouseover="this.style.color='var(--brand-navy)'" onmouseout="this.style.color='var(--text-secondary)'">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <line x1="19" y1="12" x2="5" y2="12"></line>
             <polyline points="12 19 5 12 12 5"></polyline>
         </svg>
@@ -94,89 +129,114 @@ require_once __DIR__ . "/../includes/header.php";
     </a>
 
     <!-- Main Post -->
-    <div style="background: white; border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 24px; box-shadow: var(--shadow-sm);">
-        <span class="badge" style="background: <?= getTopicColor($post['topic']) ?>; color: <?= getTopicTextColor($post['topic']) ?>; margin-bottom: 12px; display: inline-block;">
-            <?= e(ucfirst($post['topic'])) ?>
-        </span>
-        <h1 style="font-size: 1.8rem; color: var(--brand-navy); margin: 0 0 16px 0;"><?= e($post['title']) ?></h1>
-        
-        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid var(--border-subtle);">
-            <div style="width: 40px; height: 40px; background: var(--brand-navy); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.1rem;">
-                <?= mb_strtoupper(mb_substr($post['author_name'], 0, 1)) ?>
+    <article class="post-detail-container">
+        <div class="post-detail-header">
+            <div class="post-detail-topic" style="background: <?= getTopicColor($post['topic']) ?>; color: <?= getTopicTextColor($post['topic']) ?>;">
+                <?= e(ucfirst($post['topic'])) ?>
             </div>
-            <div>
-                <div style="font-weight: 600; color: var(--text-main); display: flex; align-items: center; gap: 6px;">
-                    <?= e($post['author_name']) ?>
-                    <?php if ($post['author_role'] === 'seller' || $post['author_role'] === 'admin'): ?>
-                        <span class="badge" style="font-size: 0.65rem; padding: 2px 6px;"><?= ucfirst($post['author_role']) ?></span>
-                    <?php endif; ?>
-                </div>
-                <div style="font-size: 0.85rem; color: var(--text-muted);">
-                    Posted on <?= date('F j, Y \a\t g:i A', strtotime($post['created_at'])) ?>
+            
+            <h1 class="post-detail-title"><?= e($post['title']) ?></h1>
+            
+            <div class="post-meta-bar">
+                <div class="author-info">
+                    <div class="author-avatar">
+                        <?= mb_strtoupper(mb_substr($post['author_name'], 0, 1)) ?>
+                    </div>
+                    <div>
+                        <div class="author-name">
+                            <?= e($post['author_name']) ?>
+                            <?php if ($post['author_role'] === 'seller'): ?>
+                                <span class="author-role-badge author-role-seller">Vendor</span>
+                            <?php elseif ($post['author_role'] === 'admin'): ?>
+                                <span class="author-role-badge author-role-admin">Admin</span>
+                            <?php endif; ?>
+                        </div>
+                        <div class="post-timestamp">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                            <?= date('F j, Y \a\t g:i A', strtotime($post['created_at'])) ?>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div style="color: var(--text-main); line-height: 1.6; font-size: 1.05rem; white-space: pre-wrap;"><?= e($post['content']) ?></div>
-    </div>
+        <?php if (!empty($post['image_url'])): ?>
+            <img src="<?= $_base . e($post['image_url']) ?>" alt="Post attached image" style="width: 100%; max-height: 600px; object-fit: cover; display: block; border-bottom: 1px solid var(--border-subtle);">
+        <?php endif; ?>
+        <div class="post-detail-content">
+            <?= nl2br(e($post['content'])) ?>
+        </div>
+    </article>
 
     <!-- Comments Section -->
-    <div style="margin-bottom: 40px;">
-        <h3 style="font-size: 1.25rem; color: var(--brand-navy); margin-bottom: 16px;">
+    <div class="comments-section">
+        <h3 class="comments-header">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--brand-coral);">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            </svg>
             <?= count($comments) ?> <?= count($comments) === 1 ? 'Reply' : 'Replies' ?>
         </h3>
 
         <?php if (!empty($comments)): ?>
-            <div style="display: flex; flex-direction: column; gap: 16px;">
+            <div style="display: flex; flex-direction: column;">
                 <?php foreach ($comments as $comment): ?>
-                    <div style="background: white; border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: 16px;">
-                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
-                            <div style="width: 32px; height: 32px; background: #e2e8f0; color: var(--brand-navy); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem;">
-                                <?= mb_strtoupper(mb_substr($comment['author_name'], 0, 1)) ?>
-                            </div>
-                            <div>
-                                <div style="font-weight: 600; color: var(--text-main); font-size: 0.95rem; display: flex; align-items: center; gap: 6px;">
-                                    <?= e($comment['author_name']) ?>
-                                    <?php if ($comment['author_role'] === 'seller' || $comment['author_role'] === 'admin'): ?>
-                                        <span class="badge" style="font-size: 0.6rem; padding: 1px 4px;"><?= ucfirst($comment['author_role']) ?></span>
-                                    <?php endif; ?>
-                                    <?php if ($comment['author_id'] === $post['author_id']): ?>
-                                        <span class="badge" style="background: var(--brand-coral); color: white; font-size: 0.6rem; padding: 1px 4px;">Author</span>
-                                    <?php endif; ?>
+                    <div class="comment-card <?= $comment['author_id'] === $post['author_id'] ? 'is-author' : '' ?>">
+                        <div class="comment-header">
+                            <div class="comment-author-info">
+                                <div class="comment-avatar">
+                                    <?= mb_strtoupper(mb_substr($comment['author_name'], 0, 1)) ?>
                                 </div>
-                                <div style="font-size: 0.75rem; color: var(--text-muted);">
-                                    <?= date('M j, Y g:i A', strtotime($comment['created_at'])) ?>
+                                <div>
+                                    <div class="comment-author">
+                                        <?= e($comment['author_name']) ?>
+                                        <?php if ($comment['author_role'] === 'seller'): ?>
+                                            <span class="author-role-badge author-role-seller">Vendor</span>
+                                        <?php elseif ($comment['author_role'] === 'admin'): ?>
+                                            <span class="author-role-badge author-role-admin">Admin</span>
+                                        <?php endif; ?>
+                                        <?php if ($comment['author_id'] === $post['author_id']): ?>
+                                            <span class="author-role-badge" style="background: var(--brand-coral); color: white;">Author</span>
+                                        <?php endif; ?>
+                                    </div>
+                                    <div class="comment-time">
+                                        <?= date('M j, Y g:i A', strtotime($comment['created_at'])) ?>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        <div style="color: var(--text-main); line-height: 1.5; font-size: 0.95rem; white-space: pre-wrap;"><?= e($comment['content']) ?></div>
+                        <div class="comment-content">
+                            <?= nl2br(e($comment['content'])) ?>
+                        </div>
                     </div>
                 <?php endforeach; ?>
             </div>
+        <?php else: ?>
+            <div style="text-align: center; padding: 40px; background: white; border-radius: var(--radius-lg); border: 1px dashed var(--border-medium);">
+                <p style="color: var(--text-muted); font-size: 1.05rem;">No replies yet. Be the first to chime in!</p>
+            </div>
+        <?php endif; ?>
+
+        <!-- Reply Form -->
+        <?php if ($loggedIn): ?>
+            <div class="reply-box">
+                <h4>Write a Reply</h4>
+                <form method="POST" action="post.php?id=<?= $postId ?>">
+                    <?= csrf_field() ?>
+                    <div style="margin-bottom: 16px;">
+                        <textarea name="content" rows="4" placeholder="Share your thoughts..." required class="form-input" style="font-size: 1rem; padding: 16px; resize: vertical; width: 100%; box-sizing: border-box;"></textarea>
+                    </div>
+                    <div style="display: flex; justify-content: flex-end;">
+                        <button type="submit" class="btn-primary-navy" style="border-radius: 30px; padding: 10px 24px; font-weight: 600;">Post Reply</button>
+                    </div>
+                </form>
+            </div>
+        <?php else: ?>
+            <div class="reply-box" style="text-align: center; border-style: dashed;">
+                <p style="color: var(--text-secondary); margin-bottom: 16px; font-size: 1.05rem;">Log in to participate in this discussion.</p>
+                <a href="../login.php" class="btn-primary-navy" style="border-radius: 30px; padding: 10px 32px; display: inline-block;">Log In</a>
+            </div>
         <?php endif; ?>
     </div>
-
-    <!-- Reply Form -->
-    <?php if ($loggedIn): ?>
-        <div style="background: #f8fafc; border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: 20px;">
-            <h4 style="font-size: 1.1rem; color: var(--brand-navy); margin-bottom: 12px;">Leave a Reply</h4>
-            <form method="POST" action="post.php?id=<?= $postId ?>">
-                <?= csrf_field() ?>
-                <div style="margin-bottom: 12px;">
-                    <textarea name="content" rows="4" placeholder="Write your reply here..." required class="form-input" style="width: 100%; resize: vertical;"></textarea>
-                </div>
-                <div style="text-align: right;">
-                    <button type="submit" class="primary-button" style="padding: 8px 20px;">Post Reply</button>
-                </div>
-            </form>
-        </div>
-    <?php else: ?>
-        <div style="background: #f8fafc; border: 1px dashed var(--border-subtle); border-radius: var(--radius-lg); padding: 24px; text-align: center;">
-            <p style="color: var(--text-secondary); margin-bottom: 12px;">Log in to reply to this discussion.</p>
-            <a href="../login.php" class="primary-button" style="display: inline-block;">Log In</a>
-        </div>
-    <?php endif; ?>
-
 </main>
 
 <?php require_once __DIR__ . "/../includes/footer.php"; ?>

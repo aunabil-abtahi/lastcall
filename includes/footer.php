@@ -7,7 +7,7 @@
  */
 
 $_footerScriptPath = $_SERVER["SCRIPT_NAME"] ?? "";
-$_footerInSubdir = (bool) preg_match('#/(admin|seller|payments|tasks)/#', $_footerScriptPath);
+$_footerInSubdir = (bool) preg_match('#/(admin|seller|payments|tasks|community)/#', $_footerScriptPath);
 $_base = $_footerInSubdir ? "../" : "";
 
 $_footerMealsRescued = 0;
