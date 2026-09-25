@@ -9,6 +9,8 @@ if (!isLoggedIn()) {
     exit;
 }
 
+require_csrf();
+
 $data = json_decode(file_get_contents('php://input'), true);
 $commentId = $data['comment_id'] ?? 0;
 $userId = $_SESSION['user_id'];

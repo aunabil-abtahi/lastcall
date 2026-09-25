@@ -242,7 +242,7 @@ require_once __DIR__ . "/../includes/header.php";
 
         <div style="padding: 0 32px 24px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border-subtle);">
             <div>
-                <a href="#" onclick="showLikesModal(event)" style="color: var(--text-muted); font-size: 0.95rem; font-weight: 600; text-decoration: none; display: flex; align-items: center; gap: 6px;">
+                <a href="#" onclick="showLikesModal(event, <?= $post['post_id'] ?>)" style="color: var(--text-muted); font-size: 0.95rem; font-weight: 600; text-decoration: none; display: flex; align-items: center; gap: 6px;">
                     <span id="likeCountDetail"><?= (int)$post['like_count'] ?></span> Likes
                 </a>
             </div>
@@ -492,13 +492,13 @@ async function editComment(commentId, btnElement) {
     }
 }
 
-async function showLikesModal(e) {
-    e.preventDefault();
+async function showLikesModal(e, postId) {
+    if (e) e.preventDefault();
     document.getElementById('likesModal').style.display = 'flex';
     document.getElementById('likesListContainer').innerHTML = '<p style="text-align: center; color: var(--text-muted);">Loading...</p>';
     
     try {
-        const response = await fetch('get_likes.php?post_id=<?= $postId ?>');
+        const response = await fetch(`get_likes.php?post_id=${postId}`);
         const data = await response.json();
         
         let html = '';
