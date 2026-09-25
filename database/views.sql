@@ -63,6 +63,7 @@ SELECT
     r.order_id,
     r.rating,
     r.review_text,
+    r.review_image,
     r.created_at,
     r.seller_id,
     sp.business_name AS seller_business_name,

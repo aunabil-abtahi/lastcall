@@ -88,7 +88,7 @@ if ($listing) {
 
     // Fetch recent reviews for this seller from view
     $reviewsStmt = $pdo->prepare("
-        SELECT review_id, buyer_name, rating, review_text, created_at, item_title
+        SELECT review_id, buyer_name, rating, review_text, review_image, created_at, item_title
         FROM view_listing_reviews
         WHERE seller_id = ?
         ORDER BY created_at DESC
@@ -351,6 +351,11 @@ require_once __DIR__ . "/includes/header.php";
                                 <div class="review-quote" style="margin-top: 10px;">
                                     "<?= e($review["review_text"] ?: "Great experience and rescued food quality!") ?>"
                                 </div>
+                                <?php if (!empty($review["review_image"])): ?>
+                                    <div style="margin-top: 12px; border-radius: var(--radius-md); overflow: hidden; max-height: 200px;">
+                                        <img src="/<?= e($review["review_image"]) ?>" alt="Review attachment" style="width: 100%; height: 100%; object-fit: cover; border-radius: var(--radius-md); border: 1px solid var(--border-subtle);">
+                                    </div>
+                                <?php endif; ?>
                             </div>
                             <div class="review-author-meta">
                                 <span class="review-buyer-name">

@@ -356,6 +356,7 @@ CREATE TABLE reviews (
 
     rating TINYINT UNSIGNED NOT NULL,
     review_text TEXT NULL,
+    review_image VARCHAR(255) NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT chk_rating
@@ -507,6 +508,7 @@ SELECT
     r.order_id,
     r.rating,
     r.review_text,
+    r.review_image,
     r.created_at,
     r.seller_id,
     sp.business_name AS seller_business_name,

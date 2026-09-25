@@ -44,15 +44,29 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $error = "Review text cannot exceed 2000 characters.";
     } else {
         try {
+            $imagePath = null;
+            if (isset($_FILES['review_image']) && $_FILES['review_image']['error'] === UPLOAD_ERR_OK) {
+                $ext = strtolower(pathinfo($_FILES['review_image']['name'], PATHINFO_EXTENSION));
+                $allowed = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+                if (in_array($ext, $allowed)) {
+                    $newFilename = uniqid('rev_', true) . '.' . $ext;
+                    $uploadDir = __DIR__ . '/uploads/reviews/';
+                    if (move_uploaded_file($_FILES['review_image']['tmp_name'], $uploadDir . $newFilename)) {
+                        $imagePath = 'uploads/reviews/' . $newFilename;
+                    }
+                }
+            }
+
             $pdo->prepare("
-                INSERT INTO reviews (order_id, buyer_id, seller_id, rating, review_text) 
-                VALUES (?, ?, ?, ?, ?)
+                INSERT INTO reviews (order_id, buyer_id, seller_id, rating, review_text, review_image) 
+                VALUES (?, ?, ?, ?, ?, ?)
             ")->execute([
                 $orderId,
                 $_SESSION["user_id"],
                 $order["seller_id"],
                 $rating,
-                $text !== "" ? $text : null
+                $text !== "" ? $text : null,
+                $imagePath
             ]);
             header("Location: my_orders.php");
             exit;
@@ -87,7 +101,7 @@ require_once __DIR__ . "/includes/header.php";
             </div>
         <?php endif; ?>
 
-        <form method="POST" action="review.php">
+        <form method="POST" action="review.php" enctype="multipart/form-data">
             <?= csrf_field() ?>
             <input type="hidden" name="order_id" value="<?= (int) $orderId ?>">
 
@@ -107,6 +121,11 @@ require_once __DIR__ . "/includes/header.php";
                 <label style="display: block; font-weight: 600; margin-bottom: 6px;">Your Review (Optional)</label>
                 <textarea name="review_text" rows="4" maxlength="2000" placeholder="How was the food quality or ticket experience?" style="width: 100%; padding: 10px 14px; border: 1px solid var(--border-subtle); border-radius: var(--radius-md); font-family: inherit; resize: vertical;"></textarea>
                 <small style="color: var(--text-muted); font-size: 12px;">Maximum 2,000 characters.</small>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 22px;">
+                <label style="display: block; font-weight: 600; margin-bottom: 6px;">Add a Photo (Optional)</label>
+                <input type="file" name="review_image" accept="image/*" style="width: 100%; padding: 8px 14px; border: 1px dashed var(--border-subtle); border-radius: var(--radius-md); background: var(--surface-muted); color: var(--text-primary); cursor: pointer;">
             </div>
 
             <button class="primary-button" type="submit" style="width: 100%; padding: 12px; font-weight: 700; cursor: pointer;">
