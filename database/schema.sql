@@ -19,6 +19,7 @@ CREATE TABLE users (
     email VARCHAR(150) NOT NULL UNIQUE,
     phone VARCHAR(20) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NOT NULL,
+    profile_picture VARCHAR(255) NULL,
     role ENUM('buyer', 'seller', 'admin') NOT NULL DEFAULT 'buyer',
     location_id INT UNSIGNED NULL,
 
@@ -535,11 +536,13 @@ CREATE TABLE community_posts (
 CREATE TABLE community_comments (
     comment_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     post_id INT UNSIGNED NOT NULL,
+    parent_id INT UNSIGNED NULL,
     author_id INT UNSIGNED NOT NULL,
     content TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_comment_post FOREIGN KEY (post_id) REFERENCES community_posts(post_id) ON DELETE CASCADE,
-    CONSTRAINT fk_comment_author FOREIGN KEY (author_id) REFERENCES users(user_id) ON DELETE CASCADE
+    CONSTRAINT fk_comment_author FOREIGN KEY (author_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    CONSTRAINT fk_comment_parent FOREIGN KEY (parent_id) REFERENCES community_comments(comment_id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
 -- 21. Community Likes

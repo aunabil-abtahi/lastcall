@@ -45,6 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $loggedIn) {
 
 // Fetch Posts
 $topicFilter = $_GET['topic'] ?? 'all';
+$searchQuery = trim($_GET['q'] ?? '');
 $page = max(1, (int)($_GET['page'] ?? 1));
 $limit = 20;
 $offset = ($page - 1) * $limit;
@@ -54,6 +55,7 @@ $query = "
         p.*,
         u.full_name as author_name,
         u.role as author_role,
+        u.profile_picture as author_profile_picture,
         (SELECT COUNT(*) FROM community_comments c WHERE c.post_id = p.post_id) as comment_count,
         (SELECT COUNT(*) FROM community_likes l WHERE l.post_id = p.post_id) as like_count,
         (SELECT 1 FROM community_likes l2 WHERE l2.post_id = p.post_id AND l2.user_id = ?) as user_liked
@@ -62,9 +64,23 @@ $query = "
 ";
 
 $params = [$userId];
+$whereConditions = [];
+
 if ($topicFilter !== 'all') {
-    $query .= " WHERE p.topic = ?";
+    $whereConditions[] = "p.topic = ?";
     $params[] = $topicFilter;
+}
+
+if ($searchQuery !== '') {
+    $whereConditions[] = "(p.title LIKE ? OR p.content LIKE ? OR u.full_name LIKE ?)";
+    $wildcard = '%' . $searchQuery . '%';
+    $params[] = $wildcard;
+    $params[] = $wildcard;
+    $params[] = $wildcard;
+}
+
+if (!empty($whereConditions)) {
+    $query .= " WHERE " . implode(' AND ', $whereConditions);
 }
 
 $query .= " ORDER BY p.created_at DESC LIMIT ? OFFSET ?";
@@ -114,7 +130,7 @@ require_once __DIR__ . "/../includes/header.php";
     .create-post-card { background: var(--surface-card); border-radius: var(--radius-xl); padding: 24px; box-shadow: var(--shadow-sm); margin-bottom: 40px; border: 1px solid var(--border-subtle); transition: var(--transition-smooth); }
     .create-post-card:focus-within { box-shadow: var(--shadow-lg); border-color: var(--border-medium); }
     
-    .filter-tabs { display: flex; gap: 12px; margin-bottom: 32px; overflow-x: auto; padding-bottom: 12px; scrollbar-width: none; }
+    .filter-tabs { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
     .filter-tabs::-webkit-scrollbar { display: none; }
     .filter-tab { background: var(--surface-card); border: 1px solid var(--border-subtle); color: var(--text-secondary); padding: 10px 24px; border-radius: 30px; font-weight: 600; font-size: 0.95rem; white-space: nowrap; transition: var(--transition-fast); cursor: pointer; box-shadow: var(--shadow-sm); }
     .filter-tab:hover { border-color: var(--brand-navy); color: var(--brand-navy); transform: translateY(-2px); }
@@ -164,49 +180,73 @@ require_once __DIR__ . "/../includes/header.php";
         <p class="community-subtitle">Discuss food rescues, event hype, and hyper-local deals with your neighbors.</p>
     </div>
 
-    <!-- Create Post Form -->
+    <!-- Actions Bar: Search (Moved below hero) -->
+    <div style="margin-bottom: 24px;">
+        <form method="GET" action="index.php" style="display: flex; gap: 8px;">
+            <?php if ($topicFilter !== 'all'): ?>
+                <input type="hidden" name="topic" value="<?= e($topicFilter) ?>">
+            <?php endif; ?>
+            <div style="position: relative; flex: 1;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-muted);">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <input type="text" name="q" value="<?= e($searchQuery) ?>" placeholder="Search posts, topics, or authors..." style="width: 100%; box-sizing: border-box; padding: 14px 16px 14px 48px; border-radius: 30px; border: 1px solid var(--border-medium); font-size: 1rem; outline: none; transition: all 0.2s ease; background: var(--surface-card); box-shadow: var(--shadow-sm);" onfocus="this.style.borderColor='var(--brand-navy)'; this.style.boxShadow='0 0 0 3px var(--brand-navy-tint)';" onblur="this.style.borderColor='var(--border-medium)'; this.style.boxShadow='var(--shadow-sm)';">
+            </div>
+            <button type="submit" class="btn-primary-navy" style="padding: 0 28px; border-radius: 30px; font-weight: 600; box-shadow: var(--shadow-sm);">Search</button>
+        </form>
+    </div>
+
+    <!-- Create Post Form (FB Style) -->
     <?php if ($loggedIn): ?>
-        <div class="create-post-card">
+        <div class="create-post-card" style="padding: 16px 20px;">
             <form method="POST" action="index.php" enctype="multipart/form-data">
                 <?= csrf_field() ?>
                 
-                <!-- Simple Create Header like FB -->
-                <div style="display: flex; gap: 12px; margin-bottom: 16px;">
-                    <div class="post-avatar" style="width: 40px; height: 40px; font-size: 1rem;">
-                        <?= mb_strtoupper(mb_substr($_SESSION['full_name'] ?? 'U', 0, 1)) ?>
+                <div style="display: flex; gap: 12px; margin-bottom: 12px; align-items: flex-start;">
+                    <div class="post-avatar" style="width: 40px; height: 40px; font-size: 1rem; overflow: hidden; margin-top: 4px;">
+                        <?php if (!empty($_SESSION['profile_picture'])): ?>
+                            <img src="<?= $_base . e($_SESSION['profile_picture']) ?>" alt="Avatar" style="width:100%; height:100%; object-fit:cover;">
+                        <?php else: ?>
+                            <?= mb_strtoupper(mb_substr($_SESSION['full_name'] ?? 'U', 0, 1)) ?>
+                        <?php endif; ?>
                     </div>
                     <div style="flex: 1;">
-                        <input type="text" name="title" placeholder="What's the topic?" required class="form-input" style="width: 100%; box-sizing: border-box; font-size: 1.05rem; padding: 10px 16px; background: var(--surface-muted); border-radius: 20px; border-color: transparent;">
+                        <?php
+                            $firstName = explode(' ', $_SESSION['full_name'] ?? 'User')[0];
+                        ?>
+                        <input type="text" name="title" placeholder="What's the topic, <?= e($firstName) ?>?" required style="width: 100%; box-sizing: border-box; font-size: 1.05rem; padding: 12px 20px; background: var(--surface-muted); border-radius: 30px; border: 1px solid transparent; outline: none; transition: all 0.2s; color: var(--text-primary); margin-bottom: 8px;" onfocus="this.style.background='white'; this.style.borderColor='var(--brand-navy-light)'; this.style.boxShadow='0 0 0 2px var(--brand-navy-tint)';" onblur="if(!this.value){ this.style.background='var(--surface-muted)'; this.style.borderColor='transparent'; this.style.boxShadow='none'; }">
+                        
+                        <textarea name="content" rows="2" placeholder="Write something more..." required style="width: 100%; box-sizing: border-box; font-size: 1rem; padding: 12px 16px; background: transparent; border: none; outline: none; resize: none; min-height: 60px;" oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px'"></textarea>
                     </div>
                 </div>
-
-                <div style="margin-bottom: 16px;">
-                    <textarea name="content" rows="3" placeholder="Share your thoughts, ask questions, or recommend a hidden gem..." required class="form-input" style="width: 100%; box-sizing: border-box; font-size: 1.05rem; padding: 16px; border: none; resize: none;"></textarea>
-                </div>
                 
-                <div style="border-top: 1px solid var(--border-subtle); padding-top: 16px; display: flex; align-items: center; justify-content: space-between;">
-                    <div style="display: flex; gap: 12px; align-items: center;">
-                        <select name="topic" class="form-select" required style="font-size: 0.9rem; padding: 6px 32px 6px 12px; border-radius: 20px; width: auto; background-color: var(--surface-muted); border-color: transparent;">
-                            <option value="general">💬 General</option>
-                            <option value="food">🍔 Food</option>
-                            <option value="events">🎟️ Events</option>
-                            <option value="feedback">💡 Feedback</option>
-                        </select>
-                        
-                        <div class="file-input-wrapper">
-                            <div class="file-input-btn">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
-                                Photo
+                <div style="border-top: 1px solid var(--border-subtle); padding-top: 12px; display: flex; align-items: center; justify-content: space-between;">
+                    <div style="display: flex; gap: 16px; align-items: center;">
+                        <div class="file-input-wrapper" style="margin: 0;">
+                            <div class="file-input-btn" style="background: transparent; color: var(--text-secondary); padding: 8px 12px; font-weight: 600; font-size: 0.95rem; display: flex; align-items: center; gap: 8px;">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#45bd62" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                                Photo/Video
                             </div>
                             <input type="file" name="image" accept="image/*" id="postImageInput">
                         </div>
+
+                        <div style="position: relative; display: flex; align-items: center;">
+                            <select name="topic" required style="font-size: 0.95rem; padding: 8px 32px 8px 16px; border-radius: 20px; border: 1px solid transparent; background: var(--surface-muted); color: var(--text-primary); font-weight: 600; cursor: pointer; outline: none; appearance: none; transition: all 0.2s;" onfocus="this.style.borderColor='var(--brand-navy-light)'; this.style.boxShadow='0 0 0 2px var(--brand-navy-tint)';" onblur="this.style.borderColor='transparent'; this.style.boxShadow='none';">
+                                <option value="general">💬 General</option>
+                                <option value="food">🍔 Food Rescue</option>
+                                <option value="events">🎟️ Event Hype</option>
+                                <option value="feedback">💡 Feedback</option>
+                            </select>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position: absolute; right: 12px; pointer-events: none; color: var(--text-secondary);"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </div>
                     </div>
-                    <button type="submit" class="btn-primary-navy" style="padding: 8px 24px; font-size: 1rem; border-radius: 20px;">
+                    <button type="submit" class="btn-primary-navy" style="padding: 8px 20px; font-size: 0.95rem; border-radius: 6px; font-weight: 600;">
                         Post
                     </button>
                 </div>
                 <!-- Image Preview Area -->
-                <div id="imagePreviewContainer" style="display: none; margin-top: 16px; border-radius: 8px; overflow: hidden; position: relative;">
+                <div id="imagePreviewContainer" style="display: none; margin-top: 12px; border-radius: 8px; overflow: hidden; position: relative;">
                     <img id="imagePreview" src="" alt="Preview" style="width: 100%; max-height: 200px; object-fit: cover;">
                     <button type="button" id="clearImageBtn" style="position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,0.6); color: white; border: none; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; cursor: pointer;">&times;</button>
                 </div>
@@ -223,13 +263,17 @@ require_once __DIR__ . "/../includes/header.php";
         </div>
     <?php endif; ?>
 
-    <!-- Filter Tabs -->
-    <div class="filter-tabs">
-        <a href="?topic=all" class="filter-tab <?= $topicFilter === 'all' ? 'active' : '' ?>">All Topics</a>
-        <a href="?topic=food" class="filter-tab <?= $topicFilter === 'food' ? 'active' : '' ?>">🍔 Food Rescue</a>
-        <a href="?topic=events" class="filter-tab <?= $topicFilter === 'events' ? 'active' : '' ?>">🎟️ Event Hype</a>
-        <a href="?topic=general" class="filter-tab <?= $topicFilter === 'general' ? 'active' : '' ?>">💬 General</a>
-        <a href="?topic=feedback" class="filter-tab <?= $topicFilter === 'feedback' ? 'active' : '' ?>">💡 Feedback</a>
+        <!-- Filter Tabs -->
+        <div class="filter-tabs">
+            <?php 
+                $qParam = $searchQuery !== '' ? '&q=' . urlencode($searchQuery) : ''; 
+            ?>
+            <a href="?topic=all<?= $qParam ?>" class="filter-tab <?= $topicFilter === 'all' ? 'active' : '' ?>">All Topics</a>
+            <a href="?topic=food<?= $qParam ?>" class="filter-tab <?= $topicFilter === 'food' ? 'active' : '' ?>">🍔 Food Rescue</a>
+            <a href="?topic=events<?= $qParam ?>" class="filter-tab <?= $topicFilter === 'events' ? 'active' : '' ?>">🎟️ Event Hype</a>
+            <a href="?topic=general<?= $qParam ?>" class="filter-tab <?= $topicFilter === 'general' ? 'active' : '' ?>">💬 General</a>
+            <a href="?topic=feedback<?= $qParam ?>" class="filter-tab <?= $topicFilter === 'feedback' ? 'active' : '' ?>">💡 Feedback</a>
+        </div>
     </div>
 
     <!-- Feed -->
@@ -248,8 +292,12 @@ require_once __DIR__ . "/../includes/header.php";
                     <!-- Post Header (Author Info) -->
                     <div class="post-header">
                         <div class="post-meta">
-                            <div class="post-avatar">
-                                <?= mb_strtoupper(mb_substr($post['author_name'], 0, 1)) ?>
+                            <div class="post-avatar" style="overflow: hidden;">
+                                <?php if (!empty($post['author_profile_picture'])): ?>
+                                    <img src="<?= $_base . e($post['author_profile_picture']) ?>" alt="Avatar" style="width:100%; height:100%; object-fit:cover;">
+                                <?php else: ?>
+                                    <?= mb_strtoupper(mb_substr($post['author_name'], 0, 1)) ?>
+                                <?php endif; ?>
                             </div>
                             <div>
                                 <div class="post-author" style="display: flex; align-items: center; gap: 8px;">
@@ -261,7 +309,11 @@ require_once __DIR__ . "/../includes/header.php";
                                     <?php endif; ?>
                                 </div>
                                 <div class="post-date">
-                                    <?= date('F j \a\t g:i a', strtotime($post['created_at'])) ?> · 
+                                    <?= date('F j \a\t g:i a', strtotime($post['created_at'])) ?>
+                                    <?php if ($post['is_edited'] ?? false): ?>
+                                        <a href="edit_history.php?id=<?= $post['post_id'] ?>" style="color: inherit; text-decoration: underline; margin-left: 4px;">(Edited)</a>
+                                    <?php endif; ?>
+                                    · 
                                     <span style="color: <?= getTopicTextColor($post['topic']) ?>; font-weight: 600;">
                                         <?= e(ucfirst($post['topic'])) ?>
                                     </span>
@@ -275,6 +327,12 @@ require_once __DIR__ . "/../includes/header.php";
                             </button>
                             <div class="post-dropdown" id="dropdown_<?= $post['post_id'] ?>">
                                 <?php if ($post['author_id'] == $userId || ($_SESSION['role'] ?? '') === 'admin'): ?>
+                                    <?php if ($post['author_id'] == $userId): ?>
+                                        <a href="edit_post.php?id=<?= $post['post_id'] ?>" class="post-dropdown-item" style="color: inherit; text-decoration: none;">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+                                            Edit Post
+                                        </a>
+                                    <?php endif; ?>
                                     <button class="post-dropdown-item danger" onclick="deletePost(<?= $post['post_id'] ?>)">
                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
                                         Delete Post
@@ -304,10 +362,14 @@ require_once __DIR__ . "/../includes/header.php";
                     <!-- Post Stats (Likes & Comments counts) -->
                     <div class="post-stats">
                         <div>
-                            <span id="likeCount_<?= $post['post_id'] ?>"><?= $post['like_count'] ?></span> <?= $post['like_count'] === 1 ? 'Like' : 'Likes' ?>
+                            <a href="#" onclick="showLikesModal(event, <?= $post['post_id'] ?>)" style="color: inherit; text-decoration: none;">
+                                <span id="likeCount_<?= $post['post_id'] ?>"><?= $post['like_count'] ?></span> <span id="likeText_<?= $post['post_id'] ?>"><?= $post['like_count'] === 1 ? 'Like' : 'Likes' ?></span>
+                            </a>
                         </div>
                         <div>
-                            <?= $post['comment_count'] ?> <?= $post['comment_count'] === 1 ? 'Comment' : 'Comments' ?>
+                            <a href="post.php?id=<?= $post['post_id'] ?>" style="color: inherit; text-decoration: none;">
+                                <?= $post['comment_count'] ?> <?= $post['comment_count'] === 1 ? 'Comment' : 'Comments' ?>
+                            </a>
                         </div>
                     </div>
                     
@@ -332,6 +394,17 @@ require_once __DIR__ . "/../includes/header.php";
         <?php endif; ?>
     </div>
 </main>
+
+<!-- Likes Modal -->
+<div id="likesModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+    <div style="background: white; width: 100%; max-width: 400px; border-radius: var(--radius-xl); padding: 24px; position: relative;">
+        <button onclick="document.getElementById('likesModal').style.display='none'" style="position: absolute; right: 16px; top: 16px; background: none; border: none; cursor: pointer; font-size: 1.5rem; color: var(--text-muted);">&times;</button>
+        <h3 style="margin-top: 0; color: var(--brand-navy); margin-bottom: 16px;">Liked By</h3>
+        <div id="likesListContainer" style="max-height: 300px; overflow-y: auto;">
+            <!-- Rendered via JS -->
+        </div>
+    </div>
+</div>
 
 <script>
 // Image Upload Preview
@@ -394,14 +467,10 @@ document.querySelectorAll('.like-btn').forEach(btn => {
                 
                 // Update text content with pluralization handled slightly simply
                 // since we want to keep "X Likes" format, we just update the number
-                // But in PHP we did "$post['like_count'] === 1 ? 'Like' : 'Likes'". 
-                // A quick hack is just setting the number and ignoring the "Likes" word if it's outside.
-                // Our HTML is `<span id="likeCount_X">Y</span> Likes`
                 countSpan.textContent = data.likes;
-                // Update pluralization in parent
-                const parentTextNode = Array.from(countSpan.parentNode.childNodes).find(n => n.nodeType === 3 && n.textContent.trim().toLowerCase().includes('like'));
-                if (parentTextNode) {
-                    parentTextNode.textContent = data.likes === 1 ? ' Like' : ' Likes';
+                const likesWordSpan = document.getElementById(`likeText_${postId}`);
+                if (likesWordSpan) {
+                    likesWordSpan.textContent = data.likes === 1 ? 'Like' : 'Likes';
                 }
             } else {
                 alert(data.error || 'Something went wrong');
@@ -414,6 +483,38 @@ document.querySelectorAll('.like-btn').forEach(btn => {
 </script>
 
 <script>
+async function showLikesModal(e, postId) {
+    e.preventDefault();
+    document.getElementById('likesModal').style.display = 'flex';
+    document.getElementById('likesListContainer').innerHTML = '<p style="text-align: center; color: var(--text-muted);">Loading...</p>';
+    
+    try {
+        const response = await fetch(`get_likes.php?post_id=${postId}`);
+        const data = await response.json();
+        
+        let html = '';
+        if (data.likes && data.likes.length > 0) {
+            data.likes.forEach(user => {
+                let avatar = user.profile_picture 
+                    ? `<img src="<?= $_base ?>${user.profile_picture}" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover;">`
+                    : `<div style="width: 36px; height: 36px; border-radius: 50%; background: var(--surface-muted); display: flex; align-items: center; justify-content: center; font-weight: bold;">${user.full_name.charAt(0).toUpperCase()}</div>`;
+                
+                html += `
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                        ${avatar}
+                        <div style="font-weight: 600; color: var(--text-primary);">${user.full_name}</div>
+                    </div>
+                `;
+            });
+        } else {
+            html = '<p style="text-align: center; color: var(--text-muted);">No likes yet.</p>';
+        }
+        document.getElementById('likesListContainer').innerHTML = html;
+    } catch (err) {
+        document.getElementById('likesListContainer').innerHTML = '<p style="text-align: center; color: var(--brand-coral);">Error loading likes.</p>';
+    }
+}
+
 function toggleDropdown(postId) {
     const dropdown = document.getElementById('dropdown_' + postId);
     

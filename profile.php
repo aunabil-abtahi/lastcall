@@ -41,15 +41,34 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && ($_POST["action"] ?? "") === "updat
                 }
             }
 
+            $profilePicturePath = null;
+            if (isset($_FILES["profile_picture"]) && $_FILES["profile_picture"]["error"] === UPLOAD_ERR_OK) {
+                $uploadDir = __DIR__ . "/assets/images/users/";
+                if (!is_dir($uploadDir)) {
+                    mkdir($uploadDir, 0777, true);
+                }
+                $fileInfo = pathinfo($_FILES["profile_picture"]["name"]);
+                $ext = strtolower($fileInfo["extension"] ?? "");
+                if (in_array($ext, ["jpg", "jpeg", "png", "webp", "gif"])) {
+                    $filename = "user_" . $uid . "_" . time() . "." . $ext;
+                    if (move_uploaded_file($_FILES["profile_picture"]["tmp_name"], $uploadDir . $filename)) {
+                        $profilePicturePath = "assets/images/users/" . $filename;
+                    }
+                }
+            }
+
             $updateUser = $pdo->prepare("
                 UPDATE users 
-                SET full_name = ?, phone = ?, location_id = ? 
+                SET full_name = ?, phone = ?, location_id = ?, profile_picture = COALESCE(?, profile_picture)
                 WHERE user_id = ?
             ");
-            $updateUser->execute([$fullName, $phone ?: null, $locationId, $uid]);
+            $updateUser->execute([$fullName, $phone ?: null, $locationId, $profilePicturePath, $uid]);
 
             $pdo->commit();
             $_SESSION["full_name"] = $fullName;
+            if ($profilePicturePath) {
+                $_SESSION["profile_picture"] = $profilePicturePath;
+            }
             $profileSuccess = "Profile updated successfully!";
         } catch (Throwable $ex) {
             if ($pdo->inTransaction()) {
@@ -94,7 +113,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && ($_POST["action"] ?? "") === "chang
 
 // Fetch current user details
 $stmt = $pdo->prepare("
-    SELECT u.user_id, u.full_name, u.email, u.phone, u.role, u.account_status, u.created_at,
+    SELECT u.user_id, u.full_name, u.email, u.phone, u.role, u.account_status, u.created_at, u.profile_picture,
            loc.city, loc.area
     FROM users u
     LEFT JOIN locations loc ON loc.location_id = u.location_id
@@ -140,9 +159,20 @@ require_once __DIR__ . "/includes/header.php";
                 </div>
             <?php endif; ?>
 
-            <form method="post">
+            <form method="post" enctype="multipart/form-data">
                 <?= csrf_field() ?>
                 <input type="hidden" name="action" value="update_profile">
+
+                <div class="form-group" style="margin-bottom: 14px; display: flex; align-items: center; gap: 16px;">
+                    <?php 
+                        $avatarUrl = !empty($user["profile_picture"]) ? "/" . htmlspecialchars($user["profile_picture"]) : "https://ui-avatars.com/api/?name=" . urlencode($user["full_name"]) . "&background=random";
+                    ?>
+                    <img src="<?= $avatarUrl ?>" alt="Profile Picture" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border-light);">
+                    <div>
+                        <label style="display:block; font-weight: bold; margin-bottom: 4px;">Profile Picture</label>
+                        <input type="file" name="profile_picture" accept="image/*" style="font-size: 13px;">
+                    </div>
+                </div>
 
                 <div class="form-group" style="margin-bottom: 14px;">
                     <label style="display:block; font-weight: bold; margin-bottom: 4px;">Full Name</label>
