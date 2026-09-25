@@ -300,8 +300,12 @@ require_once __DIR__ . "/../includes/header.php";
                         <div class="comment-content">
                             <?= nl2br(e($comment['content'])) ?>
                             <?php if ($loggedIn): ?>
-                            <div style="margin-top: 10px;">
+                            <div style="margin-top: 10px; display: flex; gap: 12px; align-items: center;">
                                 <button type="button" class="btn-demo-action clear-btn" style="padding: 2px 8px; font-size: 0.85rem;" onclick="showReplyForm(<?= $comment['comment_id'] ?>)">Reply</button>
+                                <?php if ($comment['author_id'] == $userId || ($_SESSION['role'] ?? '') === 'admin'): ?>
+                                    <button type="button" class="btn-demo-action clear-btn" style="padding: 2px 8px; font-size: 0.85rem; color: var(--text-secondary);" data-content="<?= e($comment['content']) ?>" onclick="editComment(<?= $comment['comment_id'] ?>, this)">Edit</button>
+                                    <button type="button" class="btn-demo-action clear-btn" style="padding: 2px 8px; font-size: 0.85rem; color: var(--brand-coral);" onclick="deleteComment(<?= $comment['comment_id'] ?>)">Delete</button>
+                                <?php endif; ?>
                             </div>
                             <?php endif; ?>
                         </div>
@@ -330,6 +334,12 @@ require_once __DIR__ . "/../includes/header.php";
                                         </div>
                                         <div class="comment-content" style="padding-left: 40px; font-size: 0.95rem;">
                                             <?= nl2br(e($reply['content'])) ?>
+                                            <?php if ($loggedIn && ($reply['author_id'] == $userId || ($_SESSION['role'] ?? '') === 'admin')): ?>
+                                                <div style="margin-top: 6px; display: flex; gap: 12px;">
+                                                    <button type="button" class="btn-demo-action clear-btn" style="padding: 2px 8px; font-size: 0.75rem; color: var(--text-secondary);" data-content="<?= e($reply['content']) ?>" onclick="editComment(<?= $reply['comment_id'] ?>, this)">Edit</button>
+                                                    <button type="button" class="btn-demo-action clear-btn" style="padding: 2px 8px; font-size: 0.75rem; color: var(--brand-coral);" onclick="deleteComment(<?= $reply['comment_id'] ?>)">Delete</button>
+                                                </div>
+                                            <?php endif; ?>
                                         </div>
                                     </div>
                                 <?php endforeach; ?>
@@ -430,6 +440,55 @@ function showReplyForm(commentId) {
         form.style.display = 'block';
     } else {
         form.style.display = 'none';
+    }
+}
+
+async function deleteComment(commentId) {
+    if (!confirm('Are you sure you want to delete this comment?')) return;
+    try {
+        const response = await fetch('delete_comment.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-Token': '<?= $_SESSION['csrf_token'] ?? '' ?>'
+            },
+            body: JSON.stringify({ comment_id: commentId })
+        });
+        const data = await response.json();
+        if (data.success) {
+            window.location.reload();
+        } else {
+            alert(data.error || 'Failed to delete comment.');
+        }
+    } catch (err) {
+        console.error(err);
+        alert('An error occurred.');
+    }
+}
+
+async function editComment(commentId, btnElement) {
+    const currentContent = btnElement.getAttribute('data-content');
+    const newContent = prompt("Edit your comment:", currentContent);
+    if (newContent === null || newContent.trim() === '' || newContent === currentContent) return;
+    
+    try {
+        const response = await fetch('edit_comment.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-Token': '<?= $_SESSION['csrf_token'] ?? '' ?>'
+            },
+            body: JSON.stringify({ comment_id: commentId, content: newContent })
+        });
+        const data = await response.json();
+        if (data.success) {
+            window.location.reload();
+        } else {
+            alert(data.error || 'Failed to edit comment.');
+        }
+    } catch (err) {
+        console.error(err);
+        alert('An error occurred.');
     }
 }
 
