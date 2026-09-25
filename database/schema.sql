@@ -527,6 +527,7 @@ CREATE TABLE community_posts (
     title VARCHAR(200) NOT NULL,
     content TEXT NOT NULL,
     image_url VARCHAR(255) NULL,
+    is_edited BOOLEAN NOT NULL DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     CONSTRAINT fk_post_author FOREIGN KEY (author_id) REFERENCES users(user_id) ON DELETE CASCADE
@@ -555,7 +556,18 @@ CREATE TABLE community_likes (
     CONSTRAINT fk_like_user FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
--- 21. Audit Logs Table (Advanced DBMS tracking)
+-- 22. Community Post Edits
+CREATE TABLE community_post_edits (
+    edit_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    post_id INT UNSIGNED NOT NULL,
+    old_title VARCHAR(200) NOT NULL,
+    old_content TEXT NOT NULL,
+    old_topic ENUM('food', 'events', 'general', 'feedback') NOT NULL DEFAULT 'general',
+    edited_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_edit_post FOREIGN KEY (post_id) REFERENCES community_posts(post_id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- 23. Audit Logs Table (Advanced DBMS tracking)
 CREATE TABLE audit_logs (
     log_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     table_name VARCHAR(50) NOT NULL,
