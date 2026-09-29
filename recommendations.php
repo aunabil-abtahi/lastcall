@@ -15,6 +15,7 @@ $sql = "
         l.description,
         l.listing_type,
         l.original_price,
+        l.image_url,
         loc.city,
         loc.area,
         f.quantity_available,
@@ -90,6 +91,9 @@ require_once __DIR__ . "/includes/header.php";
                         : ceil($l["minutes_left"] / 60) . " hours left";
                 ?>
                 <article class="card">
+                    <?php if (!empty($l["image_url"])): ?>
+                        <img src="<?= e($l["image_url"]) ?>" alt="<?= e($l["title"]) ?>" style="width: 100%; height: 180px; object-fit: cover; border-top-left-radius: var(--radius-lg); border-top-right-radius: var(--radius-lg); margin-bottom: 0.5rem; display: block;">
+                    <?php endif; ?>
                     <span class="badge <?= $isFood ? "" : "ticket" ?>">
                         <?= $isFood ? "Food Rescue" : "Event Ticket" ?>
                     </span>

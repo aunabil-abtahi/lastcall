@@ -37,13 +37,15 @@ $listingQuery = $pdo->prepare("
         TIMESTAMPDIFF(MINUTE, NOW(), l.pickup_or_event_deadline) AS minutes_left,
         sp.business_name AS seller_business_name,
         sp.seller_type,
-        sp.verification_status AS seller_verification_status
+        sp.verification_status AS seller_verification_status,
+        u.profile_picture AS seller_profile_picture
     FROM listings l
     JOIN locations loc ON loc.location_id = l.location_id
     LEFT JOIN food_listing_details f ON f.listing_id = l.listing_id
     LEFT JOIN ticket_listings tl ON tl.listing_id = l.listing_id
     LEFT JOIN tickets t ON t.ticket_id = tl.ticket_id
     LEFT JOIN seller_profiles sp ON sp.user_id = l.seller_id
+    JOIN users u ON u.user_id = l.seller_id
     WHERE l.listing_id = ?
       AND l.listing_status = 'active'
       AND l.pickup_or_event_deadline > NOW()
@@ -263,8 +265,12 @@ require_once __DIR__ . "/includes/header.php";
             <!-- Right Column: Seller Reputation & Info Card -->
             <aside class="seller-reputation-card">
                 <div class="seller-reputation-header">
-                    <div class="seller-avatar-circle">
-                        <?= mb_strtoupper(mb_substr($sellerName, 0, 1)) ?>
+                    <div class="seller-avatar-circle" style="overflow: hidden;">
+                        <?php if (!empty($listing["seller_profile_picture"])): ?>
+                            <img src="/<?= e($listing["seller_profile_picture"]) ?>" alt="Avatar" style="width:100%; height:100%; object-fit:cover;">
+                        <?php else: ?>
+                            <?= mb_strtoupper(mb_substr($sellerName, 0, 1)) ?>
+                        <?php endif; ?>
                     </div>
                     <div class="seller-title-wrap">
                         <h3><?= e($sellerName) ?></h3>
