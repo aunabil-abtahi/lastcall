@@ -83,7 +83,13 @@ $_cssVersion = file_exists(__DIR__ . "/../assets/css/style.css") ? filemtime(__D
                 <!-- Dropdown Menu for Organized Navigation -->
                 <div class="user-menu" id="userMenu">
                     <button type="button" class="user-menu-btn" onclick="toggleUserMenu(event)" aria-haspopup="true" aria-expanded="false" id="userMenuBtn">
-                        <span class="user-avatar-circle"><?= mb_strtoupper(mb_substr($_userName, 0, 1)) ?></span>
+                        <span class="user-avatar-circle" style="overflow: hidden;">
+                            <?php if (!empty($_SESSION['profile_picture'])): ?>
+                                <img src="<?= $_base . e($_SESSION['profile_picture']) ?>" alt="Avatar" style="width:100%; height:100%; object-fit:cover;">
+                            <?php else: ?>
+                                <?= mb_strtoupper(mb_substr($_userName, 0, 1)) ?>
+                            <?php endif; ?>
+                        </span>
                         <span class="user-menu-name"><?= e($_userName) ?></span>
                         <span class="user-badge <?= e($_role) ?>"><?= e(ucfirst($_role)) ?></span>
                         <svg class="chevron-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -93,7 +99,13 @@ $_cssVersion = file_exists(__DIR__ . "/../assets/css/style.css") ? filemtime(__D
 
                     <div class="user-dropdown-panel" id="userDropdownPanel">
                         <div class="dropdown-profile-brief">
-                            <div class="dropdown-profile-avatar"><?= mb_strtoupper(mb_substr($_userName, 0, 1)) ?></div>
+                            <div class="dropdown-profile-avatar" style="overflow: hidden;">
+                                <?php if (!empty($_SESSION['profile_picture'])): ?>
+                                    <img src="<?= $_base . e($_SESSION['profile_picture']) ?>" alt="Avatar" style="width:100%; height:100%; object-fit:cover;">
+                                <?php else: ?>
+                                    <?= mb_strtoupper(mb_substr($_userName, 0, 1)) ?>
+                                <?php endif; ?>
+                            </div>
                             <div class="dropdown-profile-info">
                                 <div class="dropdown-profile-name"><?= e($_userName) ?></div>
                                 <div class="dropdown-profile-role"><?= e(ucfirst($_role)) ?> Account</div>
